@@ -1,0 +1,88 @@
+<html>
+<body>
+
+	<p>A simple and ligthweight library/API for building applications with tree-like structure (such as web apps using
+		HTTP). The library comes with three different approaches for building a tree of objects, default semantic contracts
+		for tree keys and values (optional to use), and samples for working with the tree at runtime. All-in-all, the aim of
+		the library is to provide a simple and easy to learn and easy to use API for applications that are easy to develop and
+		maintain. The simplicity is achieved by externalizing state management and algorithms from application components.</p>
+
+	<p>Before writing any code, few things should be planned first:</p>
+
+	<ol>
+		<li><strong>How is the tree structure going to be used?</strong> For example, one common need would be
+			deliverying HTTP requests according to path in a request.</li>
+		<li><strong>What are the application components going to do?</strong> For example, the components could handle
+			HTTP requests depending on the HTTP method (GET, POST, etc).</li>
+		<li><strong>What kind of response do the components need to return?</strong> For example, HTTP response could
+			return certain common views such as main page, login page, or a redirect.</li>
+	</ol>
+
+	<p>
+		Answers to these questions provide an input for creating interfaces (semantic contracts) to be used by application
+		components to identify their semantics. <em>Rocket-Path</em> library provides some built-in contracts to begin with.
+	</p>
+
+	<h3>Usage Guide</h3>
+
+	<ol>
+		<li><strong>Develop your components.</strong> Only a few is needed in the beginning, e.g. a component for home
+			page.</li>
+		<li><strong>Build a tree from application components using {@link ws.rocket.path.TreeNode} class.</strong> There
+			are three ways to do that: directly using <code>TreeNode</code> class, using a {@link
+			ws.rocket.path.builder.TreeNodeBuilder}, or CDI annotations. When tree is built, only reference to the root node is
+			needed. Each tree node should have a <code>String</code> or some other well-known data type for key, and a component
+			as node value.</li>
+		<li><strong>Develop algorithms (functionality) that deliver and invoke actions on the components.</strong> An
+			algorithm typically receives a root node, a path and request data for input. For example, {@link
+			ws.rocket.path.support.SampleAlgorithm} class contains algorithms for deliverying HTTP requests to the components.</li>
+		<li>When the concept of response views is used, develop a <code>ViewFactory</code> containing methods for
+			building all views that the application needs to return. For examples, see {@link
+			ws.rocket.path.support.SampleViewFactory} class.
+		</li>
+	</ol>
+
+	<h3>Benefits</h3>
+
+	<ol>
+		<li>Developers have the freedom to design own interfaces (semantic contracts) for their own components.</li>
+		<li>It easy to maintain processing algorithms and also enhance them as it is located in a single place (algorithm
+			class). No need to write interceptors, tree-visitors or other kind of design pattern based callbacks.</li>
+		<li>Since the application uses tree structure, it can also grow like a tree.</li>
+		<li>Since developers have complete access to the <em>container</em> of their components, it is possible to write
+			algorithms for visualising the tree and and other cool stuff. <em>Examples coming soon.</em>
+		</li>
+		<li>The tree structure itself is conservative in terms of memory usage (linear to the components count).</li>
+	</ol>
+
+	<h3>How This Code Is Organized</h3>
+
+	<p>The layout is basically following:</p>
+
+	<ol>
+		<li><code>ws.rocket.path</code> &mdash; the common tree classes are here;</li>
+		<li><code>ws.rocket.path.builder</code> &mdash; a tree builder solution using builder-pattern;</li>
+		<li><code>ws.rocket.path.annotation</code> &mdash; a tree builder solution using CDI annotations;</li>
+		<li><code>ws.rocket.path.meta</code> &mdash; default semantic contracts for tree node keys and values (optional);</li>
+		<li><code>ws.rocket.path.support</code> &mdash; code samples and extensions to simplify tree usage within other
+			technologies.</li>
+	</ol>
+
+	<h3>Working with Existing Technologies</h3>
+
+	<p>
+		The tree structure from the library comes with no dependencies. However, when CDI (<em>Contexts and Dependecy
+			Injection</em>) is available, that too can be used for tree construction using annotations. Some contracts rely on <em>Servlet</em>
+		technology starting from <em>Servlet 3</em>. On the other hand, since the tree itself is just a data structure, it
+		should be quite easy to use it with other technologies, for example, for rendering with <em>Java ServerPages</em>
+		(JSP). All in all, since CDI, <em>Servlet</em>, JSP are integrated into Java EE servers, this library is an easy and
+		light drop-in to start working.
+	</p>
+
+	<p>
+		The code of the <em>Rocket-Path</em> library is open-sourced with the <a
+			href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache 2.0 license</a>.
+	</p>
+
+</body>
+</html>
