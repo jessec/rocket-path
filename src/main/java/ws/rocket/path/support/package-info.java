@@ -20,4 +20,3 @@
  * Additional functionality to support tree functionality usage with other APIs (such as JSP).
  */
 package ws.rocket.path.support;
-

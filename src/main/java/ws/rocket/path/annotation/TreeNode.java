@@ -50,6 +50,14 @@ import javax.inject.Named;
 public @interface TreeNode {
 
   /**
+   * Specifies the node key as a string. This value is used when the value of this attribute is not empty.
+   * 
+   * @return The node key as a string.
+   */
+  @Nonbinding
+  String key() default "";
+
+  /**
    * Reference to node key object by CDI bean name. This value is used when <code>keyType == Object.class</code> and the
    * value of this attribute is not emtpy.
    * 

@@ -33,8 +33,9 @@ import java.util.Date;
  * The handler may also provide additional cache control headers.
  * <p>
  * Using HTTP caching, applications can reduce network traffic and server load while improving end-user browsing
- * experience. However, caching must be well-thought before used. For example, dynamic queries must not be cached. On the
- * other hand, caching suggestions should be included in the response to avoid unexpected default behaviour of user-agents (e.g. browsers).
+ * experience. However, caching must be well-thought before used. For example, dynamic queries must not be cached. On
+ * the other hand, caching suggestions should be included in the response to avoid unexpected default behaviour of
+ * user-agents (e.g. browsers).
  * 
  * @author Martti Tamm
  */

@@ -27,14 +27,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import javax.enterprise.util.Nonbinding;
-import javax.inject.Named;
 import javax.inject.Qualifier;
-
-import ws.rocket.path.TreeNode;
 
 /**
  * CDI qualifying annotation, which triggers a tree construction where the root node value is with provided name or
- * type. This annotation must precede a variable with type of {@link TreeNode}.
+ * type. This annotation must precede a variable with type of {@link ws.rocket.path.TreeNode}.
  * <p>
  * Usage: specify either the root node value bean name or type. Do not specify both as only one will be used:
  * <ol>
@@ -56,8 +53,8 @@ public @interface RootNode {
   /**
    * The name of the bean to be used as <code>TreeNode</code> value object. Defaults to "root".
    * <p>
-   * The value bean must be annotated with {@link Named} annotation (or {@link ws.rocket.path.annotation.TreeNode},
-   * which includes the <code>@Named</code> annotation).
+   * The value bean must be annotated with {@link javax.inject.Named} annotation (or
+   * {@link ws.rocket.path.annotation.TreeNode}, which includes the <code>@Named</code> annotation).
    * <p>
    * This annotation value is used when the type() attribute value equals to <code>Object.class</code>.
    * 

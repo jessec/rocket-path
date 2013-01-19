@@ -31,7 +31,7 @@ import java.util.StringTokenizer;
  * 
  * @author Martti Tamm
  */
-public class TreePath implements Iterator<String> {
+public final class TreePath implements Iterator<String> {
 
   private static final String DEFAULT_PATH_SEPARATOR = "/";
 
@@ -82,6 +82,7 @@ public class TreePath implements Iterator<String> {
     return this.depth > 0;
   }
 
+  @Override
   public String next() {
     if (!hasNext()) {
       throw new NoSuchElementException();
@@ -136,6 +137,7 @@ public class TreePath implements Iterator<String> {
   /**
    * Not to be used in tree path: results with runtime exception.
    */
+  @Override
   public void remove() {
     throw new UnsupportedOperationException();
   }

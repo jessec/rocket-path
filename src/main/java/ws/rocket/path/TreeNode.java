@@ -23,8 +23,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import ws.rocket.path.annotation.KeyBuilder;
-
 /**
  * A data structure which can be used for composing trees. A tree node can have a key, a value, and any amount of child
  * tree nodes. Note that the types for key and value are not predefined nor mandatory. Also note that this class does
@@ -38,10 +36,10 @@ import ws.rocket.path.annotation.KeyBuilder;
  * This tree node can be constructed only once. In addition, <code>TreeNode</code> is serializable as long as its keys,
  * values and children are also serializable.
  * 
- * @see KeyBuilder
+ * @see ws.rocket.path.annotation.KeyBuilder
  * @author Martti Tamm
  */
-public class TreeNode implements Serializable {
+public final class TreeNode implements Serializable {
 
   private static final long serialVersionUID = 1L;
 

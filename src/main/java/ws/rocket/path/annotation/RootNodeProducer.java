@@ -30,7 +30,6 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.enterprise.inject.spi.InjectionTarget;
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import ws.rocket.path.DynamicKey;
 import ws.rocket.path.TreeNode;
@@ -42,8 +41,8 @@ import ws.rocket.path.TreeNode;
  * where tree injection must be done. This producer uses meta information from annotations for resolving the key and
  * value objects with possible child <code>TreeNode</code>s, and finally returns the root node of the initialized tree.
  * Annotations affecting the construction are <code>RootNode</code> (on the field/method being injected), which points
- * to the value object of the root node, and {@link ws.rocket.path.annotation.TreeNode} (on node value objects),
- * which may describe the current node key, and value objects of child-nodes.
+ * to the value object of the root node, and {@link ws.rocket.path.annotation.TreeNode} (on node value objects), which
+ * may describe the current node key, and value objects of child-nodes.
  * <p>
  * The algorithm follows:
  * <ol>
@@ -66,15 +65,15 @@ import ws.rocket.path.TreeNode;
  * information is read starting from the root of the tree. In addition, thanks to CDI, all associated node key and value
  * objects get their annotated dependencies injected.
  * <p>
- * Note: when node value object is missing <code>TreeNode</code> and {@link Named} annotations, the node key would
- * default to <code>null</code> as the bean name is <code>null</code>. However, currently the key value is manually
- * composed just as it would be done with the <code>Named</code> annotation. This fact is explicitly brought out here to
- * avoid surprises, but this behaviour can also be altered in the future.
+ * Note: when node value object is missing <code>TreeNode</code> and {@link javax.inject.Named} annotations, the node
+ * key would default to <code>null</code> as the bean name is <code>null</code>. However, currently the key value is
+ * manually composed just as it would be done with the <code>Named</code> annotation. This fact is explicitly brought
+ * out here to avoid surprises, but this behaviour can also be altered in the future.
  * 
  * @author Martti Tamm
  */
 @ApplicationScoped
-public class RootNodeProducer {
+public final class RootNodeProducer {
 
   @Inject
   private BeanManager manager;
@@ -89,143 +88,143 @@ public class RootNodeProducer {
   @Produces
   @RootNode
   public TreeNode createTree(InjectionPoint injectionPoint) {
-	RootNode rootAnnotation = null;
+    RootNode rootAnnotation = null;
 
-	for (Annotation annotation : injectionPoint.getQualifiers()) {
-	  if (annotation instanceof RootNode) {
-		rootAnnotation = (RootNode) annotation;
-	  }
-	}
+    for (Annotation annotation : injectionPoint.getQualifiers()) {
+      if (annotation instanceof RootNode) {
+        rootAnnotation = (RootNode) annotation;
+      }
+    }
 
-	if (rootAnnotation.type() != null && rootAnnotation.type() != Object.class) {
-	  return findTreeNode(rootAnnotation.type());
-	} else if (rootAnnotation.value() != null && rootAnnotation.value().trim().length() > 0) {
-	  return findTreeNode(rootAnnotation.value());
-	}
+    if (rootAnnotation.type() != null && rootAnnotation.type() != Object.class) {
+      return findTreeNode(rootAnnotation.type());
+    } else if (rootAnnotation.value() != null && rootAnnotation.value().trim().length() > 0) {
+      return findTreeNode(rootAnnotation.value());
+    }
 
-	throw new RuntimeException("Could not resolve the value object for the root node of the tree "
-	    + "specified with annotation: " + rootAnnotation);
+    throw new RuntimeException("Could not resolve the value object for the root node of the tree "
+        + "specified with annotation: " + rootAnnotation);
   }
 
   private TreeNode findTreeNode(String beanName) {
-	Set<Bean<?>> beans = this.manager.getBeans(beanName);
-	if (beans.isEmpty()) {
-	  throw new RuntimeException("Could not find TreeNode value by name '" + beanName + "'.");
-	} else if (beans.size() > 1) {
-	  throw new RuntimeException("Currently only one TreeNode value is expected. Name: '" + beanName + "'.");
-	}
+    Set<Bean<?>> beans = this.manager.getBeans(beanName);
+    if (beans.isEmpty()) {
+      throw new RuntimeException("Could not find TreeNode value by name '" + beanName + "'.");
+    } else if (beans.size() > 1) {
+      throw new RuntimeException("Currently only one TreeNode value is expected. Name: '" + beanName + "'.");
+    }
 
-	return createTreeNode(beans.iterator().next());
+    return createTreeNode(beans.iterator().next());
   }
 
   private TreeNode findTreeNode(Class<?> beanType) {
-	Set<Bean<?>> beans = this.manager.getBeans(beanType);
-	if (beans.isEmpty()) {
-	  throw new RuntimeException("Could not find TreeNode value by type: " + beanType);
-	} else if (beans.size() > 1) {
-	  throw new RuntimeException("Currently only one TreeNode value is expected to exist. Type: " + beanType);
-	}
+    Set<Bean<?>> beans = this.manager.getBeans(beanType);
+    if (beans.isEmpty()) {
+      throw new RuntimeException("Could not find TreeNode value by type: " + beanType);
+    } else if (beans.size() > 1) {
+      throw new RuntimeException("Currently only one TreeNode value is expected to exist. Type: " + beanType);
+    }
 
-	return createTreeNode(beans.iterator().next());
+    return createTreeNode(beans.iterator().next());
   }
 
   private TreeNode createTreeNode(Bean<?> bean) {
-	Object value = this.manager.getReference(bean, bean.getBeanClass(), this.manager.createCreationalContext(bean));
+    Object value = this.manager.getReference(bean, bean.getBeanClass(), this.manager.createCreationalContext(bean));
 
-	ws.rocket.path.annotation.TreeNode meta = bean.getBeanClass().getAnnotation(
-	    ws.rocket.path.annotation.TreeNode.class);
+    ws.rocket.path.annotation.TreeNode meta = bean.getBeanClass().getAnnotation(
+        ws.rocket.path.annotation.TreeNode.class);
 
-	return new TreeNode(resolveKey(bean, value, meta), value, resolveChildren(bean, meta));
+    return new TreeNode(resolveKey(bean, value, meta), value, resolveChildren(bean, meta));
   }
 
   private Object resolveKey(Bean<?> valueBean, Object value, ws.rocket.path.annotation.TreeNode meta) {
-	Object key = null;
+    Object key = null;
 
-	if (value instanceof KeyBuilder) {
-	  key = ((KeyBuilder) value).buildKey();
-	  if (key != null) {
-		injectDependencies(key);
-	  }
+    if (value instanceof KeyBuilder) {
+      key = ((KeyBuilder) value).buildKey();
+      if (key != null) {
+        injectDependencies(key);
+      }
 
-	} else if (meta != null) {
-	  Set<Bean<?>> beans = null;
+    } else if (meta != null) {
+      Set<Bean<?>> beans = null;
 
-	  if (meta.keyType() != Object.class) {
-		if (!DynamicKey.class.isAssignableFrom(meta.keyType())) {
-		  throw new RuntimeException("TreeNode key, if not String, must implement DynamicKey. Problem detected at "
-			  + valueBean);
-		}
+      if (meta.keyType() != Object.class) {
+        if (!DynamicKey.class.isAssignableFrom(meta.keyType())) {
+          throw new RuntimeException("TreeNode key, if not String, must implement DynamicKey. Problem detected at "
+              + valueBean);
+        }
 
-		beans = this.manager.getBeans(meta.keyType());
+        beans = this.manager.getBeans(meta.keyType());
 
-	  } else if (meta.keyName().trim().length() > 0) {
-		beans = this.manager.getBeans(meta.keyName());
-	  }
+      } else if (meta.keyName().trim().length() > 0) {
+        beans = this.manager.getBeans(meta.keyName());
+      }
 
-	  if (beans != null) {
-		if (beans.isEmpty()) {
-		  throw new RuntimeException("Could not find TreeNode key for annotation " + meta + " at " + valueBean);
+      if (beans != null) {
+        if (beans.isEmpty()) {
+          throw new RuntimeException("Could not find TreeNode key for annotation " + meta + " at " + valueBean);
 
-		} else if (beans.size() > 1) {
-		  throw new RuntimeException("Found too many (" + beans.size() + ") TreeNode key candidates for annotation "
-			  + meta + " at " + valueBean);
+        } else if (beans.size() > 1) {
+          throw new RuntimeException("Found too many (" + beans.size() + ") TreeNode key candidates for annotation "
+              + meta + " at " + valueBean);
 
-		} else {
-		  key = beans.iterator().next();
-		}
-	  }
-	}
+        } else {
+          key = beans.iterator().next();
+        }
+      }
+    }
 
-	if (key == null) {
-	  String name = valueBean.getName();
+    if (key == null) {
+      String name = valueBean.getName();
 
-	  // Fall back to manually composed bean name:
-	  if (name == null) {
-		name = valueBean.getBeanClass().getSimpleName();
-		name = Character.toLowerCase(name.codePointAt(0)) + name.substring(1);
-	  }
+      // Fall back to manually composed bean name:
+      if (name == null) {
+        name = valueBean.getBeanClass().getSimpleName();
+        name = Character.toLowerCase(name.codePointAt(0)) + name.substring(1);
+      }
 
-	  key = name;
-	}
+      key = name;
+    }
 
-	return key;
+    return key;
   }
 
   private TreeNode[] resolveChildren(Bean<?> valueBean, ws.rocket.path.annotation.TreeNode meta) {
 
-	if (meta == null || meta.children().length == 0 && meta.childTypes().length == 0) {
-	  return null;
-	} else if (meta.children().length > 0 && meta.childTypes().length > 0) {
-	  throw new RuntimeException("Child-TreeNode values are identified with both names and types; expected only one "
-		  + "to be provided (preferably types).");
-	}
+    if (meta == null || meta.children().length == 0 && meta.childTypes().length == 0) {
+      return null;
+    } else if (meta.children().length > 0 && meta.childTypes().length > 0) {
+      throw new RuntimeException("Child-TreeNode values are identified with both names and types; expected only one "
+          + "to be provided (preferably types).");
+    }
 
-	TreeNode[] childNodes;
+    TreeNode[] childNodes;
 
-	if (meta.childTypes().length > 0) {
-	  childNodes = new TreeNode[meta.childTypes().length];
-	  int i = 0;
+    if (meta.childTypes().length > 0) {
+      childNodes = new TreeNode[meta.childTypes().length];
+      int i = 0;
 
-	  for (Class<?> childType : meta.childTypes()) {
-		childNodes[i++] = findTreeNode(childType);
-	  }
-	} else {
-	  childNodes = new TreeNode[meta.children().length];
-	  int i = 0;
+      for (Class<?> childType : meta.childTypes()) {
+        childNodes[i++] = findTreeNode(childType);
+      }
+    } else {
+      childNodes = new TreeNode[meta.children().length];
+      int i = 0;
 
-	  for (String childName : meta.children()) {
-		childNodes[i++] = findTreeNode(childName);
-	  }
-	}
+      for (String childName : meta.children()) {
+        childNodes[i++] = findTreeNode(childName);
+      }
+    }
 
-	return childNodes;
+    return childNodes;
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   private void injectDependencies(Object key) {
-	AnnotatedType type = this.manager.createAnnotatedType(key.getClass());
-	InjectionTarget target = this.manager.createInjectionTarget(type);
-	CreationalContext creationalContext = this.manager.createCreationalContext(null);
-	target.inject(key, creationalContext);
+    AnnotatedType type = this.manager.createAnnotatedType(key.getClass());
+    InjectionTarget target = this.manager.createInjectionTarget(type);
+    CreationalContext creationalContext = this.manager.createCreationalContext(null);
+    target.inject(key, creationalContext);
   }
 }

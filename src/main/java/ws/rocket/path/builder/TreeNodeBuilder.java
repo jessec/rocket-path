@@ -42,7 +42,7 @@ import ws.rocket.path.TreeNode;
  * 
  * @author Martti Tamm
  */
-public class TreeNodeBuilder {
+public final class TreeNodeBuilder {
 
   private final Object key;
 
@@ -56,7 +56,7 @@ public class TreeNodeBuilder {
    * Creates a new builder. The created <code>TreeNode</code> won't have neither key nor value.
    */
   public TreeNodeBuilder() {
-	this(null, null, null);
+    this(null, null, null);
   }
 
   /**
@@ -66,7 +66,7 @@ public class TreeNodeBuilder {
    * @param callback Optional callback which is called with every key and value in the created tree.
    */
   public TreeNodeBuilder(TreeNodeCallback callback) {
-	this(null, null, callback);
+    this(null, null, callback);
   }
 
   /**
@@ -76,7 +76,7 @@ public class TreeNodeBuilder {
    * @param value The value for the <code>TreeNode</code> being created.
    */
   public TreeNodeBuilder(Object key, Object value) {
-	this(key, value, null);
+    this(key, value, null);
   }
 
   /**
@@ -88,13 +88,13 @@ public class TreeNodeBuilder {
    * @param callback Optional callback which is called with every key and value in the created tree.
    */
   public TreeNodeBuilder(Object key, Object value, TreeNodeCallback callback) {
-	this.key = callback != null ? callback.onKey(key) : key;
-	this.value = callback != null ? callback.onValue(value) : value;
-	this.callback = callback;
+    this.key = callback != null ? callback.onKey(key) : key;
+    this.value = callback != null ? callback.onValue(value) : value;
+    this.callback = callback;
 
-	if (value instanceof TreeNodeBuilderAware) {
-	  ((TreeNodeBuilderAware) value).initNode(this);
-	}
+    if (value instanceof TreeNodeBuilderAware) {
+      ((TreeNodeBuilderAware) value).initNode(this);
+    }
   }
 
   /**
@@ -106,18 +106,18 @@ public class TreeNodeBuilder {
    * @return The current instance of builder.
    */
   public TreeNodeBuilder addChild(Object key, Object value) {
-	if (this.callback != null) {
-	  key = this.callback.onKey(key);
-	  value = this.callback.onValue(value);
-	}
+    if (this.callback != null) {
+      key = this.callback.onKey(key);
+      value = this.callback.onValue(value);
+    }
 
-	if (value instanceof TreeNodeBuilderAware) {
-	  this.children.add(new TreeNodeBuilder(key, value, this.callback).build());
-	} else {
-	  this.children.add(new TreeNode(key, value));
-	}
+    if (value instanceof TreeNodeBuilderAware) {
+      this.children.add(new TreeNodeBuilder(key, value, this.callback).build());
+    } else {
+      this.children.add(new TreeNode(key, value));
+    }
 
-	return this;
+    return this;
   }
 
   /**
@@ -128,10 +128,10 @@ public class TreeNodeBuilder {
    * @return The current instance of builder.
    */
   public TreeNodeBuilder addChild(TreeNode node) {
-	if (node != null) {
-	  this.children.add(node);
-	}
-	return this;
+    if (node != null) {
+      this.children.add(node);
+    }
+    return this;
   }
 
   /**
@@ -140,7 +140,7 @@ public class TreeNodeBuilder {
    * @return The created <code>TreeNode</code>.
    */
   public TreeNode build() {
-	TreeNode[] childrenArray = this.children.toArray(new TreeNode[this.children.size()]);
-	return new TreeNode(this.key, this.value, childrenArray);
+    TreeNode[] childrenArray = this.children.toArray(new TreeNode[this.children.size()]);
+    return new TreeNode(this.key, this.value, childrenArray);
   }
 }

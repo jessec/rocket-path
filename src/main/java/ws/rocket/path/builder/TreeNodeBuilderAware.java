@@ -18,11 +18,9 @@
 
 package ws.rocket.path.builder;
 
-import ws.rocket.path.TreeNode;
-
 /**
- * Contract for {@link TreeNode} values that wish to participate in its node initialization when the builder pattern is
- * used. The implementor can further initialize its node by describing its child nodes.
+ * Contract for {@link ws.rocket.path.TreeNode} values that wish to participate in its node initialization when the
+ * builder pattern is used. The implementor can further initialize its node by describing its child nodes.
  * 
  * @author Martti Tamm
  */

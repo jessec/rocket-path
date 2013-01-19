@@ -17,9 +17,9 @@
 // @formatter:on
 
 /**
- * Builder design pattern based solution for creating trees. Instead of creating each tree node individually, the builder
- * approach simplifies tree construction by allowing tree nodes be conveniently described and delegating the actual tree
- * construction to the builder. A simple example of usage would be following:
+ * Builder design pattern based solution for creating trees. Instead of creating each tree node individually, the
+ * builder approach simplifies tree construction by allowing tree nodes be conveniently described and delegating the
+ * actual tree construction to the builder. A simple example of usage would be following:
  * 
  * <pre>
  * TreeNode root = new TreeNodeBuilder("root", "root value")

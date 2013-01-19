@@ -50,8 +50,13 @@ public final class SampleAlgorithm {
 
   private final TreeNode root;
 
+  /**
+   * Creates a sample algorithm instance for working with given root node.
+   * 
+   * @param root The root node that this class will use for performing actions.
+   */
   public SampleAlgorithm(TreeNode root) {
-	this.root = root;
+    this.root = root;
   }
 
   /**
@@ -63,44 +68,44 @@ public final class SampleAlgorithm {
    * @throws IOException When writing to response stream fails.
    */
   public void deliver(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	final String method = request.getMethod();
+    final String method = request.getMethod();
 
-	TreeNode node;
-	View view;
+    TreeNode node;
+    View view;
 
-	try {
-	  node = getNode(request);
+    try {
+      node = getNode(request);
 
-	  if (node == null) {
-		node = this.root;
-		view = SampleViewFactory.notFound();
-	  } else if (("GET".equals(method) || "HEAD".equals(method)) && node.getValue() instanceof Viewable) {
-		view = ((Viewable) node.getValue()).doGet(request);
-	  } else if ("POST".equals(method) && node.getValue() instanceof Submitable) {
-		view = ((Submitable) node.getValue()).doPost(request);
-	  } else if ("PUT".equals(method) && node.getValue() instanceof Uploadable) {
-		view = ((Uploadable) node.getValue()).doPut(request);
-	  } else if ("DELETE".equals(method) && node.getValue() instanceof Deletable) {
-		view = ((Deletable) node.getValue()).doDelete(request);
-	  } else {
-		view = SampleViewFactory.methodNotAllowed();
-	  }
-	} catch (AccessDeniedException e) {
-	  view = SampleViewFactory.accessDenied();
-	  node = null;
-	}
+      if (node == null) {
+        node = this.root;
+        view = SampleViewFactory.notFound();
+      } else if (("GET".equals(method) || "HEAD".equals(method)) && node.getValue() instanceof Viewable) {
+        view = ((Viewable) node.getValue()).doGet(request);
+      } else if ("POST".equals(method) && node.getValue() instanceof Submitable) {
+        view = ((Submitable) node.getValue()).doPost(request);
+      } else if ("PUT".equals(method) && node.getValue() instanceof Uploadable) {
+        view = ((Uploadable) node.getValue()).doPut(request);
+      } else if ("DELETE".equals(method) && node.getValue() instanceof Deletable) {
+        view = ((Deletable) node.getValue()).doDelete(request);
+      } else {
+        view = SampleViewFactory.methodNotAllowed();
+      }
+    } catch (AccessDeniedException e) {
+      view = SampleViewFactory.accessDenied();
+      node = null;
+    }
 
-	try {
-	  if (view != null) {
-		view.setNodes(this.root, node);
-		view.writeHeaders(response);
-		if (!"HEAD".equals(method)) {
-		  view.writeContent(request, response);
-		}
-	  }
-	} catch (Exception e) {
-	  throw new ServletException(e);
-	}
+    try {
+      if (view != null) {
+        view.setNodes(this.root, node);
+        view.writeHeaders(response);
+        if (!"HEAD".equals(method)) {
+          view.writeContent(request, response);
+        }
+      }
+    } catch (Exception e) {
+      throw new ServletException(e);
+    }
   }
 
   /**
@@ -111,64 +116,65 @@ public final class SampleAlgorithm {
    * <li>When the target node or an intermediary node is not found, <code>null</code> will be returned.
    * <li>When the target node or an intermediary node value implements {@link Restrictable} and is not available for the
    * request subject, {@link AccessDeniedException} (internal) will be thrown.
+   * </ul>
    * 
    * @param request The incoming request.
    * @return The targeted node by path, or <code>null</code> when node cannot be found in the tree.
    * @throws AccessDeniedException When a node restricts user access.
    */
   private TreeNode getNode(HttpServletRequest request) throws AccessDeniedException {
-	TreePath path = new TreePath(request.getPathInfo());
-	TreeNode node = this.root;
+    TreePath path = new TreePath(request.getPathInfo());
+    TreeNode node = this.root;
 
-	// We store references to traversed tree nodes so that they could be easily retrieved later.
-	List<TreeNode> nodes = new ArrayList<TreeNode>(path.getDepth());
-	request.setAttribute("treePath", nodes);
+    // We store references to traversed tree nodes so that they could be easily retrieved later.
+    List<TreeNode> nodes = new ArrayList<TreeNode>(path.getDepth());
+    request.setAttribute("treePath", nodes);
 
-	while (path.hasNext()) {
-	  nodes.add(node);
+    while (path.hasNext()) {
+      nodes.add(node);
 
-	  if (node.getValue() instanceof Restrictable && !((Restrictable) node.getValue()).isAvailable(request)) {
-		throw new AccessDeniedException();
-	  }
+      if (node.getValue() instanceof Restrictable && !((Restrictable) node.getValue()).isAvailable(request)) {
+        throw new AccessDeniedException();
+      }
 
-	  String item = path.getNext();
-	  TreeNode next = null;
+      String item = path.getNext();
+      TreeNode next = null;
 
-	  // First we loop over child-nodes detecting next node by key equals-check.
-	  for (TreeNode child : node.getChildren()) {
-		if (item.equals(child.getKey())) {
-		  next = child;
-		  break;
-		}
-	  }
+      // First we loop over child-nodes detecting next node by key equals-check.
+      for (TreeNode child : node.getChildren()) {
+        if (item.equals(child.getKey())) {
+          next = child;
+          break;
+        }
+      }
 
-	  // When first loop does not produce a result, the second loop attempt to match a child-node by DynamicKey
-	  // contract.
-	  // This loop may be more expensive (time/resource) depending on the contract implementation.
-	  if (next == null) {
-		for (TreeNode child : node.getChildren()) {
-		  if (child.getKey() instanceof DynamicKey && ((DynamicKey) child.getKey()).contains(path, request)) {
-			next = child;
-			break;
-		  }
-		}
-	  }
+      // When first loop does not produce a result, the second loop attempt to match a child-node by DynamicKey
+      // contract.
+      // This loop may be more expensive (time/resource) depending on the contract implementation.
+      if (next == null) {
+        for (TreeNode child : node.getChildren()) {
+          if (child.getKey() instanceof DynamicKey && ((DynamicKey) child.getKey()).contains(path, request)) {
+            next = child;
+            break;
+          }
+        }
+      }
 
-	  node = next;
+      node = next;
 
-	  if (node == null) {
-		break;
-	  }
+      if (node == null) {
+        break;
+      }
 
-	  path.next();
-	}
+      path.next();
+    }
 
-	return node;
+    return node;
   }
 
   private static class AccessDeniedException extends Exception {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
   }
 }

@@ -83,6 +83,8 @@ public interface View {
    * 
    * @param request The incoming request object.
    * @param response The response wrapper.
+   * @throws IOException If an input or output exception occurs.
+   * @throws ServletException If an exception occurs that interferes with the servlet's normal operation.
    */
   void writeContent(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException;
 }
