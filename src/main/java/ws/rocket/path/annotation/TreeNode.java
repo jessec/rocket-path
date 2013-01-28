@@ -25,9 +25,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import javax.enterprise.inject.Stereotype;
 import javax.enterprise.util.Nonbinding;
-import javax.inject.Named;
 
 /**
  * Annotation used on {@link ws.rocket.path.TreeNode} values for describing the node to be constructed where the
@@ -42,8 +40,6 @@ import javax.inject.Named;
  * @see ws.rocket.path.TreeNode
  * @author Martti Tamm
  */
-@Named
-@Stereotype
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(TYPE)

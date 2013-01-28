@@ -1,11 +1,36 @@
 defaultTasks 'clean', 'build'
 
 apply plugin: 'java'
+apply plugin: 'checkstyle'
 apply plugin: 'eclipse'
 
-description = 'Rocket-Path API'
+description = 'Rocket-Demo Web Application'
 version = '0.1'
+
 sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+sourceSets.main.output.resourcesDir = sourceSets.main.output.classesDir
+sourceSets.test.output.resourcesDir = sourceSets.test.output.classesDir
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compile 'org.glassfish:javax.servlet:3.1.1'
+  compile 'org.glassfish:javax.servlet.jsp:3.1'
+  compile 'javax.enterprise:cdi-api:1.1.EDR1.2'
+
+  testCompile 'org.testng:testng:6.5.2'
+  testCompile 'org.mockito:mockito-all:1.9.0'
+  testCompile 'org.jboss.weld.se:weld-se:1.1.10.Final'
+}
+
+test {
+  useTestNG()
+  testLogging.showStandardStreams = true
+}
 
 jar {
   manifest {
@@ -19,18 +44,4 @@ javadoc {
     docTitle project.description + ' (version ' + project.version + ')'
     windowTitle docTitle
   }
-}
-
-repositories {
-  mavenCentral()
-}
-
-dependencies {
-  compile 'org.glassfish:javax.servlet:3.1.1'
-  compile 'org.glassfish:javax.servlet.jsp:3.1'
-  compile 'javax.enterprise:cdi-api:1.1.EDR1.2'
-
-  testCompile 'org.testng:testng:6.5.2'
-  testCompile 'org.mockito:mockito-all:1.9.0'
-  testCompile 'org.jboss.weld.se:weld-se:1.1.9.Final'
 }

@@ -21,7 +21,6 @@ package ws.rocket.path.annotation;
 import java.lang.annotation.Annotation;
 import java.util.Set;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.AnnotatedType;
@@ -72,7 +71,6 @@ import ws.rocket.path.TreeNode;
  * 
  * @author Martti Tamm
  */
-@ApplicationScoped
 public final class RootNodeProducer {
 
   @Inject
@@ -96,7 +94,9 @@ public final class RootNodeProducer {
       }
     }
 
-    if (rootAnnotation.type() != null && rootAnnotation.type() != Object.class) {
+    if (rootAnnotation == null) {
+      return findTreeNode(injectionPoint.getMember().getName());
+    } else if (rootAnnotation.type() != null && rootAnnotation.type() != Object.class) {
       return findTreeNode(rootAnnotation.type());
     } else if (rootAnnotation.value() != null && rootAnnotation.value().trim().length() > 0) {
       return findTreeNode(rootAnnotation.value());
@@ -149,7 +149,9 @@ public final class RootNodeProducer {
     } else if (meta != null) {
       Set<Bean<?>> beans = null;
 
-      if (meta.keyType() != Object.class) {
+      if (meta.key().trim().length() > 0) {
+        key = meta.key();
+      } else if (meta.keyType() != Object.class) {
         if (!DynamicKey.class.isAssignableFrom(meta.keyType())) {
           throw new RuntimeException("TreeNode key, if not String, must implement DynamicKey. Problem detected at "
               + valueBean);
@@ -173,18 +175,6 @@ public final class RootNodeProducer {
           key = beans.iterator().next();
         }
       }
-    }
-
-    if (key == null) {
-      String name = valueBean.getName();
-
-      // Fall back to manually composed bean name:
-      if (name == null) {
-        name = valueBean.getBeanClass().getSimpleName();
-        name = Character.toLowerCase(name.codePointAt(0)) + name.substring(1);
-      }
-
-      key = name;
     }
 
     return key;
@@ -226,5 +216,6 @@ public final class RootNodeProducer {
     InjectionTarget target = this.manager.createInjectionTarget(type);
     CreationalContext creationalContext = this.manager.createCreationalContext(null);
     target.inject(key, creationalContext);
+    creationalContext.release();
   }
 }
