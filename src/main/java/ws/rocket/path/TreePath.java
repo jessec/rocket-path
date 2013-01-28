@@ -35,11 +35,17 @@ public final class TreePath implements Iterator<String> {
 
   private static final String DEFAULT_PATH_SEPARATOR = "/";
 
-  private String[] path;
+  private static final String DEFAULT_EXTENSION_SEPARATOR = ".";
 
-  private String pathSeparator;
+  private final String[] path;
 
-  private int depth = -1;
+  private final String extension;
+
+  private final String pathSeparator;
+
+  private final String extensionSeparator;
+
+  private int depth = 0;
 
   /**
    * Creates a new tree path iterator. The default path items separator will be used ('/').
@@ -47,7 +53,7 @@ public final class TreePath implements Iterator<String> {
    * @param path The path string to iterate.
    */
   public TreePath(String path) {
-    this(path, DEFAULT_PATH_SEPARATOR);
+    this(path, DEFAULT_PATH_SEPARATOR, DEFAULT_EXTENSION_SEPARATOR);
   }
 
   /**
@@ -55,21 +61,46 @@ public final class TreePath implements Iterator<String> {
    * 
    * @param path The path string to iterate.
    * @param pathSeparator The separator string to use.
+   * @param extensionSeparator The separator string to use on last path segment. May be <code>null</code> for no
+   *        extension check.
    */
-  public TreePath(String path, String pathSeparator) {
+  public TreePath(String path, String pathSeparator, String extensionSeparator) {
+    if (pathSeparator == null || pathSeparator.length() == 0) {
+      throw new IllegalArgumentException("Path separator must not be null nor an empty string.");
+    }
+
     this.pathSeparator = pathSeparator;
+    this.extensionSeparator = extensionSeparator;
 
-    StringTokenizer st = new StringTokenizer(path, pathSeparator);
-    this.path = new String[st.countTokens()];
+    // Initialize an array of path segments:
+    if (path == null) {
+      this.path = new String[0];
+    } else {
+      StringTokenizer st = new StringTokenizer(path, this.pathSeparator);
 
-    for (int i = 0; st.hasMoreTokens(); i++) {
-      this.path[i] = st.nextToken();
+      this.path = new String[st.countTokens()];
+
+      for (int i = 0; st.hasMoreTokens(); i++) {
+        this.path[i] = st.nextToken();
+      }
+    }
+
+    // Read the extension and remove it from the last path segment:
+    if (this.extensionSeparator != null && this.path.length > 0
+        && this.path[this.path.length - 1].contains(this.extensionSeparator)) {
+      String pathSegment = this.path[this.path.length - 1];
+      int separatorIndex = pathSegment.lastIndexOf(this.extensionSeparator);
+
+      this.path[this.path.length - 1] = pathSegment.substring(0, separatorIndex);
+      this.extension = pathSegment.substring(separatorIndex + 1);
+    } else {
+      this.extension = null;
     }
   }
 
   @Override
   public boolean hasNext() {
-    return this.depth < path.length;
+    return this.depth < this.path.length;
   }
 
   /**
@@ -87,7 +118,7 @@ public final class TreePath implements Iterator<String> {
     if (!hasNext()) {
       throw new NoSuchElementException();
     }
-    return this.path[++this.depth];
+    return this.path[this.depth++];
   }
 
   /**
@@ -131,7 +162,7 @@ public final class TreePath implements Iterator<String> {
     if (!hasPrevious()) {
       throw new NoSuchElementException();
     }
-    return this.path[this.depth];
+    return this.path[this.depth - 1];
   }
 
   /**
@@ -149,7 +180,17 @@ public final class TreePath implements Iterator<String> {
    * @return A zero-based depth of the path where the path element cursor currently is positioned.
    */
   public int getDepth() {
-    return this.depth < 0 ? 0 : this.depth;
+    return this.depth;
+  }
+
+  /**
+   * Provides the extension that was extracted from the last path segment. May return an empty string when the last path
+   * segment ended with the separator. Returns <code>null</code> when no extension is present on the last path segment.
+   * 
+   * @return A string with the extension, or <code>null</code> when it's not present.
+   */
+  public String getExtension() {
+    return this.extension;
   }
 
   /**
@@ -198,9 +239,21 @@ public final class TreePath implements Iterator<String> {
 
   private String getPath(int from, int to) {
     StringBuilder sb = new StringBuilder();
+
     for (int i = from; i < to && i < this.path.length; i++) {
       sb.append(this.pathSeparator).append(this.path[i]);
     }
+
+    if (to >= this.path.length && this.extension != null) {
+      sb.append(this.extensionSeparator).append(this.extension);
+    }
+
     return sb.toString();
   }
+
+  @Override
+  public String toString() {
+    return getPath(0, this.path.length);
+  }
+
 }

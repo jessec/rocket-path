@@ -18,6 +18,11 @@
 
 package ws.rocket.path.test;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
+
 import org.testng.annotations.Test;
 
 import ws.rocket.path.TreePath;
@@ -29,11 +34,75 @@ import ws.rocket.path.TreePath;
  */
 public final class TreePathTest {
 
+  private static final String TEST_PATH = "/path/to////my/web-page.rss";
+
   /**
    * Tests that creating <code>TreePath</code> with <code>null</code> results with null-pointer-exception.
    */
-  @Test(expectedExceptions = NullPointerException.class)
+  @Test
   public void testNullPath() {
-    new TreePath(null);
+    TreePath path = new TreePath(null);
+
+    assertEquals(path.getDepth(), 0);
+    assertNull(path.getExtension());
+    assertFalse(path.hasNext());
+    assertFalse(path.hasPrevious());
+    assertEquals(path.getPathToCurrent(), "");
+    assertEquals(path.getPathFromCurrent(), "");
+    assertEquals(path.getPreviousPath(), "");
+    assertEquals(path.getFollowingPath(), "");
+    assertEquals(path.toString(), "");
+  }
+
+  @Test
+  public void testPathSegmentation() {
+    TreePath path = new TreePath(TEST_PATH);
+
+    assertEquals(path.getDepth(), 0);
+    assertEquals(path.getExtension(), "rss");
+    assertFalse(path.hasPrevious());
+    assertTrue(path.hasNext());
+
+    String segment = null;
+
+    for (int depth = 0; depth < 4; depth++) {
+      assertEquals(path.getDepth(), depth);
+
+      if (!path.hasPrevious()) {
+        assertNull(segment);
+      } else {
+        assertEquals(path.getPrevious(), segment, "The previous path segment is not what expected.");
+      }
+
+      segment = path.getNext();
+
+      assertEquals(path.getDepth(), depth);
+      assertEquals(path.next(), segment);
+    }
+
+    assertFalse(path.hasNext());
+  }
+
+  @Test
+  public void testPathTraversing() {
+    TreePath path = new TreePath(TEST_PATH);
+
+    int segmentPosition = 0;
+
+    while (path.hasNext()) {
+      path.next();
+      segmentPosition++;
+    }
+
+    assertEquals(segmentPosition, 4, "The last segment position is expected to be 4.");
+    assertEquals(path.getDepth(), 4, "The path depth is expected to be 4.");
+
+    while (path.hasPrevious()) {
+      path.previous();
+      segmentPosition--;
+    }
+
+    assertEquals(segmentPosition, 0, "Expected to be back at the beginning.");
+    assertEquals(path.getDepth(), 0, "Expected to be back at the beginning.");
   }
 }
