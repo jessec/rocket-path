@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Rocket-Path : A simple tree structure library for storing objects and for deliverying actions to them using path, semantic contracts, and a delivery algorithm." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Rocket-Path</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/mrtamm/rocket-path">View on GitHub</a>
+
+          <h1 id="project_title">Rocket-Path</h1>
+          <h2 id="project_tagline">A simple tree structure library for storing objects and for deliverying actions to them using path, semantic contracts, and a delivery algorithm.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/mrtamm/rocket-path/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/mrtamm/rocket-path/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>Rocket-Path Library</h1>
+
+<p>This light Java library provides a simple tree structure, where each node can have a key, a value, and any number of child nodes. A tree constructed using these nodes can provide a structure to an application (or part of it) by binding together components (objects) working as a whole. Application uses the root node as the starting point for deliverying requests or actions to application objects. Therefore, the library is useful for applications where a path (e.g. HTTP request path) can be used for identifying a component. As an example, Rocket-Path can complement the Java Servlet API to simplify web app (component) development.</p>
+
+<p>The tree nodes of this library are immutable, serializable, and data within is totally accesible through getter methods.</p>
+
+<p>All-in-all, the library provides following:</p>
+
+<ul>
+<li>a <code>TreeNode</code> class for constructing trees with provided keys and values;</li>
+<li>two alternative/simplifying methods for constructing a tree;</li>
+<li>default contracts for components capable of handling HTTP requests;</li>
+<li>sample algorithms for HTTP-based applications;</li>
+<li>a sample view factory for rendering HTTP responses.</li>
+</ul><p>As a bonus, the library user gets an application structure that...</p>
+
+<ul>
+<li>can evolve (scale) over time;</li>
+<li>can be visualized;</li>
+<li>can be tested;</li>
+<li>has normal memory usage.</li>
+</ul><h2>Overview</h2>
+
+<p>There are three ways to construct a tree:</p>
+
+<ol>
+<li>creating instances of <code>TreeNode</code> class directly;</li>
+<li>using <code>TreeNodeBuilder</code> as a more convenient way;</li>
+<li>
+<code>@TreeNode</code> annotations on node value classes (with some help from CDI).</li>
+</ol><p>To be able to write algorithms that deliver actions to nodes, an application should introduce some interfaces
+(contracts), which describe the characteristics of the objects. Rocket-Path library comes with some contracts for HTTP
+request handlers that integrates well with the <em>Java Servlet (3.0) API</em>.</p>
+
+<p>Please refer to the JavaDoc or the <a href="https://github.com/mrtamm/rocket-path/wiki/User-Guide">User Guide</a> of the Rocket-Path library to get more detailed information.</p>
+
+<h3>Dependencies</h3>
+
+<p>Rocket-Path library does not have mandatory dependencies. However, it has integrated support for working with <em>Contexts And Dependecy Injection</em> (CDI) and <em>Java Servlet (3.0) API</em>. The former is supported in <code>ws.rocket.path.annotation</code> package and Servlet API contracts are referred to in some contracts (interfaces). Note that everyone can define own interfaces for contracts and the default contracts in <code>ws.rocket.path.meta</code> package are optional.</p>
+
+<h3>Building</h3>
+
+<p>This project uses <a href="http://www.gradle.org/">Gradle</a> for</p>
+
+<ul>
+<li>downloading dependencies (automatically),</li>
+<li>generating Eclipse IDE project preferences file (<code>gradle eclipse</code>),</li>
+<li>executing unit tests (<code>gradle test</code>),</li>
+<li>building the project (<code>gradle jar</code>).</li>
+</ul><p>To view more available tasks, execute following command:</p>
+
+<pre><code>gradle tasks [--all]
+</code></pre>
+
+<p>Gradle uses .<code>/build/</code> directory for storing build process results:</p>
+
+<pre><code>./build/libs/           - composed JAR file directory
+./build/docs/javadoc/   - generated JavaDoc directory
+./build/reports/tests/  - generated report for executed tests
+</code></pre>
+
+<p>Gradle can be configured by editing <code>./build.gradle</code> file.</p>
+
+<h3>License</h3>
+
+<p>This library is open-sourced with <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0 license</a> and is free to use.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Rocket-Path maintained by <a href="https://github.com/mrtamm">mrtamm</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
