@@ -19,6 +19,7 @@
 package ws.rocket.path.annotation;
 
 import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
 
 import java.lang.annotation.Documented;
@@ -48,7 +49,7 @@ import javax.inject.Qualifier;
 @Documented
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ PARAMETER, FIELD })
+@Target({ PARAMETER, FIELD, METHOD })
 public @interface RootNode {
 
   /**
