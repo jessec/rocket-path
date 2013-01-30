@@ -37,7 +37,7 @@ public final class TreePathTest {
   private static final String TEST_PATH = "/path/to////my/web-page.rss";
 
   /**
-   * Tests that creating <code>TreePath</code> with <code>null</code> results with null-pointer-exception.
+   * Tests that creating <code>TreePath</code> with <code>null</code> results with empty path.
    */
   @Test
   public void testNullPath() {
@@ -54,6 +54,9 @@ public final class TreePathTest {
     assertEquals(path.toString(), "");
   }
 
+  /**
+   * Tests whether path segmentation works correctly.
+   */
   @Test
   public void testPathSegmentation() {
     TreePath path = new TreePath(TEST_PATH);
@@ -83,6 +86,9 @@ public final class TreePathTest {
     assertFalse(path.hasNext());
   }
 
+  /**
+   * Checks that segmented path can be traversed correctly both forward and backward.
+   */
   @Test
   public void testPathTraversing() {
     TreePath path = new TreePath(TEST_PATH);
@@ -105,4 +111,5 @@ public final class TreePathTest {
     assertEquals(segmentPosition, 0, "Expected to be back at the beginning.");
     assertEquals(path.getDepth(), 0, "Expected to be back at the beginning.");
   }
+
 }

@@ -4,7 +4,7 @@ apply plugin: 'java'
 apply plugin: 'checkstyle'
 apply plugin: 'eclipse'
 
-description = 'Rocket-Demo Web Application'
+description = 'Rocket-Path -- a Tree Library'
 version = '0.1'
 
 sourceCompatibility = 1.6

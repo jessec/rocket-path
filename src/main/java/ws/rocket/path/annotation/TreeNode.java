@@ -54,8 +54,9 @@ public @interface TreeNode {
   String key() default "";
 
   /**
-   * Reference to node key object by bean type. This value is used when {@link #key()} is empty and <code>keyType != Object.class</code>. When CDI
-   * cannot resolve the type to exactly one bean, tree construction will fail.
+   * Reference to node key object by bean type. This value is used when {@link #key()} is empty and
+   * <code>keyType != Object.class</code>. When CDI cannot resolve the type to exactly one bean, tree construction will
+   * fail.
    * 
    * @return The CDI bean type for the node key object.
    */
@@ -63,8 +64,8 @@ public @interface TreeNode {
   Class<?> keyType() default Object.class;
 
   /**
-   * Reference to node key object by CDI bean name. This value is used when {@link #key()} is empty, <code>{@link #keyType()} == Object.class</code>, and the
-   * value of this attribute is not empty.
+   * Reference to node key object by CDI bean name. This value is used when {@link #key()} is empty,
+   * <code>{@link #keyType()} == Object.class</code>, and the value of this attribute is not empty.
    * 
    * @return The CDI bean name for the node key object.
    */
