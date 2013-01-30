@@ -18,20 +18,21 @@
 
 package ws.rocket.path.annotation;
 
-import static java.lang.annotation.ElementType.CONSTRUCTOR;
 import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
 import javax.enterprise.util.Nonbinding;
 import javax.inject.Qualifier;
 
 /**
  * CDI qualifying annotation, which triggers a tree construction where the root node value is with provided name or
- * type. This annotation must precede a variable with type of {@link ws.rocket.path.TreeNode}.
+ * type. When omitted, the field or parameter name is used for looking up a CDI bean with the same name. This annotation
+ * must precede a variable with type of {@link ws.rocket.path.TreeNode}.
  * <p>
  * Usage: specify either the root node value bean name or type. Do not specify both as only one will be used:
  * <ol>
@@ -47,21 +48,21 @@ import javax.inject.Qualifier;
 @Documented
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ PARAMETER, METHOD, FIELD, CONSTRUCTOR })
+@Target({ PARAMETER, FIELD })
 public @interface RootNode {
 
   /**
-   * The name of the bean to be used as <code>TreeNode</code> value object. Defaults to "root".
+   * The name of the bean to be used as <code>TreeNode</code> value object. Defaults to field or parameter name where
+   * the annotation is used.
    * <p>
-   * The value bean must be annotated with {@link javax.inject.Named} annotation (or
-   * {@link ws.rocket.path.annotation.TreeNode}, which includes the <code>@Named</code> annotation).
+   * To be effective, the targeted value bean must be annotated with {@link javax.inject.Named} annotation.
    * <p>
-   * This annotation value is used when the type() attribute value equals to <code>Object.class</code>.
+   * This annotation value is used when the {@link #type()} attribute value equals to <code>Object.class</code>.
    * 
    * @return The name of the value bean according to CDI.
    */
   @Nonbinding
-  String value() default "root";
+  String value() default "";
 
   /**
    * The type of the bean to be used as <code>TreeNode</code> value object. Defaults to <code>Object.class</code>, which
@@ -69,7 +70,7 @@ public @interface RootNode {
    * <p>
    * When using type, the CDI needs to resolve it to exactly one bean or tree construction will fail.
    * <p>
-   * This annotation value is used when the type() attribute value does not equal to <code>Object.class</code>.
+   * This annotation value is used when the this attribute value does not equal to <code>Object.class</code>.
    * 
    * @return The type of the value bean.
    */

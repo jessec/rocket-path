@@ -20,24 +20,24 @@
  * Annotations for describing keys and values of tree nodes so that a tree could be composed at runtime using CDI (
  * <em>Contexts and Dependency Injection</em>) mechanism. This approach for composing a tree is provided as an
  * alternative and is not mandatory. It might not even suit for all needs. For example, this approach requires each tree
- * node to have a value object. The default tree node producer currently always assigns a not null key for each node.
- * However, this annotation based method for constructing the tree could be simple and well enough for most cases.
+ * node to have a value object (as its class must be annotated). However, this annotation based method for constructing
+ * the tree could be simple and well enough for most cases.
  * <p>
- * Tree is constructed when CDI encounters a dependency injection point annotated with
- * {@link ws.rocket.path.annotation.RootNode}. The annotation refers to the value bean of the root tree node (by
- * default, looks for CDI bean named "root"). For example, a <em>Servlet</em> class could request root node:
+ * Tree is constructed when CDI encounters a dependency injection point (field, parameter) with
+ * {@link ws.rocket.path.TreeNode} type and with {@link ws.rocket.path.annotation.RootNode} annotation. The annotation
+ * refers to the value bean of the root tree node. For example, a <em>Servlet</em> class could request root node:
  * 
  * <pre>
  * public MyServlet extends GenericServlet {
  * 
  *   &#64;Inject
  *   &#64;RootNode
- *   private TreeNode rootNode;
+ *   private TreeNode root;
  * 
  *   private MyDeliveryAlgorithm handler;
  * 
  *   public init() {
- *     this.handler = new MyDeliveryAlgorithm(this.rootNode);
+ *     this.handler = new MyDeliveryAlgorithm(this.root);
  *   }
  * 
  *   public void service(ServletRequest req, ServletResponse res) {
@@ -46,11 +46,13 @@
  * }
  * </pre>
  * <p>
- * <code>TreeNode</code> producer uses the data from <code>RootNode</code> annotation to search for the value bean of
- * the root node. An example of a value bean is following (note the {@link ws.rocket.path.annotation.TreeNode}
- * annotation!):
+ * <code>TreeNode</code> producer uses the data (CDI bean name or type) from <code>RootNode</code> annotation to search
+ * for the value bean of the root node. When omitted, the producer uses the field/parameter name for looking up a CDI
+ * bean with the same name. An example of a value bean (to complement the previous sample) is following (note the
+ * {@link ws.rocket.path.annotation.TreeNode} annotation!):
  * 
  * <pre>
+ * &#64;Named("root")
  * &#64;TreeNode(children = {'client', 'manage', 'browse', 'api' })
  * public class Root implements KeyBuilder {
  * 
@@ -75,3 +77,4 @@
  * preferred as it is less vulnerable to code refactoring (e.g. when renaming a class).
  */
 package ws.rocket.path.annotation;
+

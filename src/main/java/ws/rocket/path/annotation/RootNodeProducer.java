@@ -94,16 +94,13 @@ public final class RootNodeProducer {
       }
     }
 
-    if (rootAnnotation == null) {
-      return findTreeNode(injectionPoint.getMember().getName());
-    } else if (rootAnnotation.type() != null && rootAnnotation.type() != Object.class) {
+    if (rootAnnotation.type() != null && rootAnnotation.type() != Object.class) {
       return findTreeNode(rootAnnotation.type());
     } else if (rootAnnotation.value() != null && rootAnnotation.value().trim().length() > 0) {
       return findTreeNode(rootAnnotation.value());
+    } else {
+      return findTreeNode(injectionPoint.getMember().getName());
     }
-
-    throw new RuntimeException("Could not resolve the value object for the root node of the tree "
-        + "specified with annotation: " + rootAnnotation);
   }
 
   private TreeNode findTreeNode(String beanName) {
