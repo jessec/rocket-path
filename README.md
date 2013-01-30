@@ -37,8 +37,9 @@ To be able to write algorithms that deliver actions to nodes, an application sho
 (contracts), which describe the characteristics of the objects. Rocket-Path library comes with some contracts for HTTP
 request handlers that integrates well with the _Java Servlet (3.0) API_.
 
-Please refer to the JavaDoc or the [User Guide](https://github.com/mrtamm/rocket-path/wiki/User-Guide) of the
-Rocket-Path library to get more detailed information.
+Please refer to the [JavaDoc](http://mrtamm.github.com/rocket-path/javadoc/0.1/) or the
+[User Guide](https://github.com/mrtamm/rocket-path/wiki/User-Guide) of the Rocket-Path library to get more detailed
+information.
 
 ### Dependencies ###
 
