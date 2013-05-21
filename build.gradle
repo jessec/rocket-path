@@ -5,7 +5,7 @@ apply plugin: 'checkstyle'
 apply plugin: 'eclipse'
 
 description = 'Rocket-Path -- a Tree Library'
-version = '0.1'
+version = '0.2-Beta'
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
@@ -18,8 +18,6 @@ repositories {
 }
 
 dependencies {
-  compile 'org.glassfish:javax.servlet:3.1.1'
-  compile 'org.glassfish:javax.servlet.jsp:3.1'
   compile 'javax.enterprise:cdi-api:1.1.EDR1.2'
 
   testCompile 'org.testng:testng:6.5.2'
@@ -29,7 +27,6 @@ dependencies {
 
 test {
   useTestNG()
-  testLogging.showStandardStreams = true
 }
 
 jar {

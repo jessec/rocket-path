@@ -18,12 +18,7 @@
 
 package ws.rocket.path.test.model;
 
-import javax.servlet.http.HttpServletRequest;
-
 import ws.rocket.path.annotation.TreeNode;
-import ws.rocket.path.meta.View;
-import ws.rocket.path.meta.http.Viewable;
-import ws.rocket.path.support.SampleViewFactory;
 
 /**
  * A sample class/object that can be used as the value of a child-node of the root node.
@@ -31,10 +26,6 @@ import ws.rocket.path.support.SampleViewFactory;
  * @author Martti Tamm
  */
 @TreeNode(key = "login")
-public final class Login implements Viewable {
+public final class Login {
 
-  @Override
-  public View doGet(HttpServletRequest request) {
-    return SampleViewFactory.login();
-  }
 }

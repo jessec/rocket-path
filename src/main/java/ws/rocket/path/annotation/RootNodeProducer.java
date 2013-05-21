@@ -30,7 +30,6 @@ import javax.enterprise.inject.spi.InjectionPoint;
 import javax.enterprise.inject.spi.InjectionTarget;
 import javax.inject.Inject;
 
-import ws.rocket.path.DynamicKey;
 import ws.rocket.path.TreeNode;
 
 /**
@@ -126,7 +125,7 @@ public final class RootNodeProducer {
   }
 
   private TreeNode createTreeNode(Bean<?> bean) {
-    Object value = this.manager.getReference(bean, bean.getBeanClass(), this.manager.createCreationalContext(bean));
+    Object value = getBeanInstance(bean);
 
     ws.rocket.path.annotation.TreeNode meta = bean.getBeanClass().getAnnotation(
         ws.rocket.path.annotation.TreeNode.class);
@@ -134,11 +133,37 @@ public final class RootNodeProducer {
     return new TreeNode(resolveKey(bean, value, meta), value, resolveChildren(bean, meta));
   }
 
+  /**
+   * Attempts to resolve a key for a tree node using the value bean. The key is resolved as following:
+   * <ul>
+   * <li>when the value object implements {@link KeyBuilder}, its <code>buildKey()</code> method is called and the
+   * returned value will be used as the key. When the value is not null, any dependencies defined that object will be
+   * populated.</li>
+   * <li>when the value bean is annotated with <code>&#064;TreeNode</code>, the key will be resolved as following:
+   * <ol>
+   * <li>when attribute <code>key</code> is not a blank or empty string, its value (as it is) will be used for tree node
+   * key;</li>
+   * <li>when attribute <code>keyType</code> is not an Object class, the class will be retrieved using CDI;</li>
+   * <li>when attribute <code>keyName</code> is not a blank or empty string, the value will be used for a CDI bean
+   * lookup by bean name;</li>
+   * <li>when CDI bean lookpup matches zero or more than one beans, the key creation will fail with a runtime exception,
+   * otherwise the found bean instance will used as the key.</li>
+   * </ol>
+   * </li>
+   * <li>otherwise, the node will get <code>null</code> for its key.</li>
+   * </ul>
+   * 
+   * @param valueBean The CDI description of the tree node value bean.
+   * @param value The instance of the tree node value bean.
+   * @param meta The <code>&#064;TreeNode</code> annotation found on the value bean.
+   * @return The resolved key (an object or <code>null</code>).
+   */
   private Object resolveKey(Bean<?> valueBean, Object value, ws.rocket.path.annotation.TreeNode meta) {
     Object key = null;
 
     if (value instanceof KeyBuilder) {
       key = ((KeyBuilder) value).buildKey();
+
       if (key != null) {
         injectDependencies(key);
       }
@@ -148,12 +173,8 @@ public final class RootNodeProducer {
 
       if (meta.key().trim().length() > 0) {
         key = meta.key();
-      } else if (meta.keyType() != Object.class) {
-        if (!DynamicKey.class.isAssignableFrom(meta.keyType())) {
-          throw new RuntimeException("TreeNode key, if not String, must implement DynamicKey. Problem detected at "
-              + valueBean);
-        }
 
+      } else if (meta.keyType() != Object.class) {
         beans = this.manager.getBeans(meta.keyType());
 
       } else if (meta.keyName().trim().length() > 0) {
@@ -169,7 +190,7 @@ public final class RootNodeProducer {
               + meta + " at " + valueBean);
 
         } else {
-          key = beans.iterator().next();
+          key = getBeanInstance(beans.iterator().next());
         }
       }
     }
@@ -205,6 +226,10 @@ public final class RootNodeProducer {
     }
 
     return childNodes;
+  }
+
+  private Object getBeanInstance(Bean<?> bean) {
+    return this.manager.getReference(bean, bean.getBeanClass(), this.manager.createCreationalContext(bean));
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })

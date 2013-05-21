@@ -115,10 +115,9 @@ public final class TreePath implements Iterator<String> {
 
   @Override
   public String next() {
-    if (!hasNext()) {
-      throw new NoSuchElementException();
-    }
-    return this.path[this.depth++];
+    String result = getNext();
+    this.depth++;
+    return result;
   }
 
   /**
@@ -129,10 +128,61 @@ public final class TreePath implements Iterator<String> {
    * @see #hasPrevious()
    */
   public String previous() {
-    if (!hasPrevious()) {
-      throw new NoSuchElementException();
-    }
-    return this.path[--this.depth];
+    String result = getPrevious();
+    this.depth--;
+    return result;
+  }
+
+  public String previousPath() {
+    String result = getPreviousPath();
+    this.depth = 0;
+    return result;
+  }
+
+  public String followingPath() {
+    String result = getFollowingPath();
+    this.depth = this.path.length;
+    return result;
+  }
+
+  public String pathToCurrent() {
+    String result = getPathToCurrent();
+    this.depth = 0;
+    return result;
+  }
+
+  public String pathFromCurrent() {
+    String result = getPathFromCurrent();
+    this.depth = this.path.length;
+    return result;
+  }
+
+  /**
+   * Not to be used in tree path: results with runtime exception.
+   */
+  @Override
+  public void remove() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Provides the depth of the path where the path element cursor currently is positioned. At first path element, the
+   * depth is 0, at second path element, the depth is 1, and so on.
+   * 
+   * @return A zero-based depth of the path where the path element cursor currently is positioned.
+   */
+  public int getDepth() {
+    return this.depth;
+  }
+
+  /**
+   * Provides the extension that was extracted from the last path segment. May return an empty string when the last path
+   * segment ended with the separator. Returns <code>null</code> when no extension is present on the last path segment.
+   * 
+   * @return A string with the extension, or <code>null</code> when it's not present.
+   */
+  public String getExtension() {
+    return this.extension;
   }
 
   /**
@@ -163,34 +213,6 @@ public final class TreePath implements Iterator<String> {
       throw new NoSuchElementException();
     }
     return this.path[this.depth - 1];
-  }
-
-  /**
-   * Not to be used in tree path: results with runtime exception.
-   */
-  @Override
-  public void remove() {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Provides the depth of the path where the path element cursor currently is positioned. At first path element, the
-   * depth is 0, at second path element, the depth is 1, and so on.
-   * 
-   * @return A zero-based depth of the path where the path element cursor currently is positioned.
-   */
-  public int getDepth() {
-    return this.depth;
-  }
-
-  /**
-   * Provides the extension that was extracted from the last path segment. May return an empty string when the last path
-   * segment ended with the separator. Returns <code>null</code> when no extension is present on the last path segment.
-   * 
-   * @return A string with the extension, or <code>null</code> when it's not present.
-   */
-  public String getExtension() {
-    return this.extension;
   }
 
   /**
