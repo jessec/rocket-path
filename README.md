@@ -1,10 +1,10 @@
 Rocket-Path Library
 ===================
 
-A simple tree structure, written in Java, where each node can have a key, a value, and any number of child nodes. This
-library also provides two additional methods to simplify construction of such trees. Finally, the library contains a
-``TreePath`` class for representing paths to tree nodes and for tracking the current position in the path. All in all,
-the *Rocket-Path* library is small, light-weight, but helpful for constructing simple trees and navigating through them.
+A simple tree structure, written in Java, where each node can have a *key*, a *value*, and any number of *child-nodes*.
+The library also provides two additional solutions to simplify construction of such trees. Helper class ``TreePath`` is
+provided for representing paths to tree nodes and for tracking the current position in the path. All in all, the
+*Rocket-Path* library is small, light-weight, but helpful for constructing simple trees and navigating through them.
 
 Using tree structures for solving complicated tasks in an application has many benefits, including the following:
 
@@ -37,10 +37,10 @@ There are three ways to construct a tree:
 	```java
 	private class ManagersNode implements TreeNodeBuilderAware {
 	
-	  public void initNode(TreeNodeBuilder builder) {
-	    builder.addChild(Integer.valueOf(1), "Alice");
-	    builder.addChild(Integer.valueOf(2), "Bob");
-	    builder.addChild(Integer.valueOf(3), "Mary");
+	  public void initNode(TreeNodeBuilder node) {
+	    node.addChild(Integer.valueOf(1), "Alice");
+	    node.addChild(Integer.valueOf(2), "Bob");
+	    node.addChild(Integer.valueOf(3), "Mary");
 	  }
 	}
 	```
@@ -60,20 +60,26 @@ There are three ways to construct a tree:
 
 	```java
 	@Named("teamA") // CDI named bean, one way for referring to beans other than class.
-	@TreeNode(key = "DevTeam", childTypes = { Managers.class, Developers.clas, Analysts.class, Testers.class })
+	@TreeNode(key = "DevTeam",
+	    childTypes = { Managers.class, Developers.class, Analysts.class, Testers.class })
 	public class DevelopmentTeam {}
 	```
 
 	Examples of how to inject a constructed tree:
 
 	```java
-	@Inject @RootNode(type = DevelopmentTeam.class) private TreeNode team; // by root node value object type
-	@Inject @RootNode("teamA") private TreeNode team;                      // by root node value bean name (explicit)
-	@Inject @RootNode private TreeNode teamA;                              // by root node value bean name (implicit)
+	// By root node value object type:
+	@Inject @RootNode(type = DevelopmentTeam.class) private TreeNode team;
+	
+	// By root node value bean name (explicit)
+	@Inject @RootNode("teamA") private TreeNode team;
+	
+	// By root node value bean name (implicit)
+	@Inject @RootNode private TreeNode teamA;
 	```
 
-``TreePath``
-------------
+Tree Path
+---------
 
 It is easier to refer to a tree node when referring to it by some kind of path. ``TreePath`` is a class for
 parsing, formatting, representing and traversing a tree path of type ``String``. By default, it assumes that path
@@ -86,10 +92,11 @@ the current position in path and printing out the previous, following, or full p
 Construction:
 
 ```java
-new TreePath(String path)
-new TreePath(String path, String pathItemSeparator, String extensionSeparator)
-new TreePath(String path, String[] allowedExtensions, boolean extensionsCaseSensitive)
-new TreePath(String path, String itemSep, String extSep, String[] allowedExts, boolean extCaseSensitive)
+new TreePath(String path);
+new TreePath(String path, String pathItemSeparator, String extensionSeparator);
+new TreePath(String path, String[] allowedExtensions, boolean extensionsCaseSensitive);
+new TreePath(String path, String itemSep, String extSep, String[] allowedExts,
+    boolean extCaseSensitive);
 ```
 
 More information
@@ -101,7 +108,7 @@ Although this README covers the most use-cases, please refer to the complete
 information.
 
 This library used to contain a tree-based HTTP request processing code in version 0.1 which is now removed and
-maintained separately: rocket-path-servlet.
+maintained separately: mrtamm/rocket-embedded.
 
 ### Dependencies ###
 
