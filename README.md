@@ -1,5 +1,5 @@
-Rocket-Path Library
-===================
+Rocket-Path
+===========
 
 A simple tree structure, written in Java, where each node can have a *key*, a *value*, and any number of *child-nodes*.
 The library also provides two additional solutions to simplify construction of such trees. Helper class ``TreePath`` is
