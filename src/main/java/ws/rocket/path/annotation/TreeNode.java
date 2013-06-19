@@ -79,7 +79,7 @@ public @interface TreeNode {
    * @return An array of CDI bean names of value objects for constructing the child-tree-nodes.
    */
   @Nonbinding
-  String[] children() default {};
+  String[] childNames() default {};
 
   /**
    * Reference to the values of child-tree-nodes by CDI bean types. This value is used when not empty.

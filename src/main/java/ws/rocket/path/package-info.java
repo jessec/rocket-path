@@ -17,82 +17,48 @@
 // @formatter:on
 
 /**
- * The main package for the tree classes. <a href="http://en.wikipedia.org/wiki/Tree_%28data_structure%29"
- * target="_blank">Tree</a> is a very common data structure in computer systems and elsewhere. In this library, tree is
- * used for maintaining contract-based components and for delivering HTTP requests to them depending on the request URI.
- * The tree and its construction classes are provided with this library together with some default (and optional)
- * contracts for tree components (mostly for node value objects). The contracts are not mandatory for library users as
- * different applications may have different requirements for the objects in tree nodes. Hopefully the default contracts
- * cover most common use-cases. Also note that contract handlers are to be implemented by library users. Examples can be
- * seen in {@link ws.rocket.path.support.SampleAlgorithm} and {@link ws.rocket.path.support.SampleViewFactory}.
- * 
  * <p>
- * This library provides a tree structure where a node is implemented as {@link ws.rocket.path.TreeNode} object.
- * Each tree node has a key and a value pair, with any amount of references to child tree nodes with same structure.
- * Note that key and value objects are not restricted by type, by uniqueness constraints nor are they mandatory.
- * However, the tree node class is final and its object state needs to be declared at construction.
- * 
+ * The main package of the <em>Rocket-Path</em> <a href="http://en.wikipedia.org/wiki/Tree_%28data_structure%29"
+ * target="_blank">tree</a> library. This package contains the main data structures.
+ * <h3>TreeNode</h3>
  * <p>
- * There are three built-in methods for tree construction:
- * 
- * <ol>
- * <li>the primary way to create a tree is to create tree nodes manually, starting from the leaves and moving up until
- * the root can be constructed. Since child-nodes need to be provided to the parent node during node construction,
- * child-nodes need to be created by that time. However, since most of the time, it is more convenient to build a tree
- * starting from the root node, two other methods are introduced. Example:
- * 
+ * A tree consists of "nodes" and "edges" between them. {@link ws.rocket.path.TreeNode} has <em>key</em> and
+ * <em>value</em> properties, and contains any amount of references to child-nodes. Those references are the
+ * "directed edges". Usually there's no need for nodes to contain references to parent nodes. When traversing a tree,
+ * starting from the root node, the passed nodes can be remembered on the way. Therefore, it's easy to find out the
+ * parents of a node.
+ * <p>
+ * The main characteristic of all trees is that there exists a root node from which it is possible to traverse to any
+ * node. The root node is the starting point for traversing a tree. In contrast, leaf nodes are all the nodes without
+ * child-nodes.
+ * <p>
+ * The primary way to create a tree is to create <code>TreeNode</code>s manually, starting from the leaves and moving up
+ * until the root can be constructed. Since child-nodes need to be provided to the parent node during
+ * <code>TreeNode</code> construction, child-<code>TreeNode</code>s need to be created by that time. Here is an example:
+ * </p>
+ *
  * <pre>
  * TreeNode child1 = new TreeNode(&quot;child1&quot;, &quot;value1&quot;);
  * TreeNode child2 = new TreeNode(&quot;child2&quot;, &quot;value2&quot;);
  * TreeNode parent = new TreeNode(&quot;root&quot;, &quot;rootValue&quot;, child1, child2);
  * </pre>
- * 
- * <li>the builder pattern makes building the tree starting from the root more flexible. Building a huge tree where each
- * node has its own key and value object can introduce a lot of class imports for the object taking care of the
- * building. With the builder pattern, {@link ws.rocket.path.builder.TreeNodeBuilderAware} contract was introduced
- * so that all value objects implementing it could get a handle of its containing tree-node builder object. With that
- * builder, the value object can define the child nodes of its tree-node. In summary, with the builder pattern, tree
- * definition gets often delegated to the value objects of tree nodes. Example:
- * 
- * <pre>
- * * TreeNode root = new TreeNodeBuilder(&quot;root&quot;, null)
- *   .add(new TreeNode(&quot;1&quot;, null))
- *   .add(&quot;2&quot;, new Obj1TreeNodeBuilderAware())
- *   .add(&quot;3&quot;, new Obj2TreeNodeBuilderAware())
- *   .build();
- * </pre>
- * 
- * <li>the final built-in method for constructing a tree is with the help of Contexts and Dependency Injection (CDI)
- * API. A tree gets constructed when a dependency to be injected is described like
- * <code>@Inject @RootNode TreeNode field;</code>. Tree construction starts with a value object named "root" (a custom
- * name or value object type can be specified in the annotation attribute). The value object is scanned for annotation
- * {@link ws.rocket.path.annotation.TreeNode}, which would contain information for building the sub-tree. In
- * summary, the tree is described with the annotations, and it is constructed once requested through CDI.
- * 
- * </ol>
- * 
  * <p>
- * Once a tree is constructed and reference to the root node is given, it is quite easy to write algorithms for
- * processing the tree. This library provides some most common contracts for tree keys and values for delivering HTTP
- * requests. The keys are treated as request URI (path) elements (some of which may be dynamic/variable, others static).
- * The values are treated as components (corresponding to the URI/path) implementing contracts depending on what kind of
- * HTTP methods they are willing to process. Given this contract-based information about the URIs and corresponding HTTP
- * methods of a web application, it is possible to
- * 
- * <ul>
- * <li>generate an overview of the web application resources and processing methods (API);
- * <li>know whether a request is supported or not before the component becomes aware of the request.
- * </ul>
- * 
+ * <code>TreeNode</code> class cannot be extended and its state cannot be modified once an instance is constructed.
+ * Therefore it should be thread-safe (which does not necessarily apply to objects stored as <em>keys</em> and
+ * <em>values</em>.
+ * </p>
+ * <h3>TreePath</h3>
  * <p>
- * In addition, value objects may implement a contract for marking a resource protected when a condition is not met
- * (e.g. due to user privileges). This contract can augment the overview of web application resources report by
- * highlighting which resources are accessible by the current user and which are not. This really simplifies security
- * testing.
- * 
+ * Sometimes it is necessary to refer to a node somewhere in the tree. The most common way is to refer by path. This
+ * library provides {@link ws.rocket.path.TreePath} for helping out. It works by taking a path string (like the one used
+ * in file systems), splits it into path segments, and helps iterating over the segments. Optionally, it may also
+ * extract an extension (similar to file extension) from the last path segment.
  * <p>
- * In summary, contracts are what give semantics to the tree keys and values, while contracts are processed by
- * well-known (custom) algorithms. The contracts are not limited to those provided by this library but can be
- * additionally defined as the nature of web/presentation layer evolves and it simplifies request processing.
+ * It is important that <code>TreePath</code> does not actually traverse a tree but just tracks the current position in
+ * the path being traversed. There are many ways to identify a child-node by a path segment value (most preferably by
+ * comparing segment value to node <em>key</em>). It is up to an algorithm to identify that node and to move to the next
+ * segment in a path when a child-node is identified. This approach allows <code>TreePath</code> to be used in more
+ * cases.
  */
 package ws.rocket.path;
+

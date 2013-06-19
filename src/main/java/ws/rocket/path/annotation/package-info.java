@@ -17,60 +17,50 @@
 // @formatter:on
 
 /**
- * Annotations for describing keys and values of tree nodes so that a tree could be composed at runtime using CDI (
- * <em>Contexts and Dependency Injection</em>) mechanism. This approach for composing a tree is provided as an
- * alternative and is not mandatory. It might not even suit for all needs. For example, this approach requires each tree
- * node to have a value object (as its class must be annotated). However, this annotation based method for constructing
- * the tree could be simple and well enough for most cases.
+ * Annotation-based approach for describing a tree so that it could be composed at runtime (on demand) using CDI (
+ * <em>Contexts and Dependency Injection</em>) mechanism.
+ * <p>
+ * This approach for composing a tree is provided as an alternative and is not mandatory. It might not even suit for all
+ * needs. For example, this approach requires each tree node to have a value object (as its class must be annotated).
+ * However, this annotation-based method for constructing the tree could be simple and well enough for most cases.
  * <p>
  * Tree is constructed when CDI encounters a dependency injection point (field, parameter) with
  * {@link ws.rocket.path.TreeNode} type and with {@link ws.rocket.path.annotation.RootNode} annotation. The annotation
- * refers to the value bean of the root tree node. For example, a <em>Servlet</em> class could request root node:
- * 
+ * refers to the value bean of the root tree node:
+ *
  * <pre>
- * public MyServlet extends GenericServlet {
- * 
- *   &#64;Inject
- *   &#64;RootNode
- *   private TreeNode root;
- * 
- *   private MyDeliveryAlgorithm handler;
- * 
- *   public init() {
- *     this.handler = new MyDeliveryAlgorithm(this.root);
- *   }
- * 
- *   public void service(ServletRequest req, ServletResponse res) {
- *     this.handler.deliver(req, res);
- *   }
- * }
+ * &#064;Inject
+ * &#064;RootNode(&quot;root&quot;)
+ * private TreeNode root;
  * </pre>
  * <p>
- * <code>TreeNode</code> producer uses the data (CDI bean name or type) from <code>RootNode</code> annotation to search
- * for the value bean of the root node. When omitted, the producer uses the field/parameter name for looking up a CDI
- * bean with the same name. An example of a value bean (to complement the previous sample) is following (note the
- * {@link ws.rocket.path.annotation.TreeNode} annotation!):
- * 
+ * {@link ws.rocket.path.annotation.RootNodeProducer} uses the data (CDI bean name or type) from <code>RootNode</code>
+ * annotation to search for the value bean of the root node. An example of a bean, which will become the <em>value</em>
+ * of a tree node, is following (complementing the previous sample):
+ *
  * <pre>
- * &#64;Named("root")
- * &#64;TreeNode(children = {'client', 'manage', 'browse', 'api' })
+ * &#064;Named(&quot;root&quot;)
+ * &#064;TreeNode(childNames = { &quot;child1&quot;, &quot;child2&quot; })
  * public class Root implements KeyBuilder {
- * 
+ *
  *   public Object buildKey() {
  *     return KeysFactory.root();
  *   }
  * }
  * </pre>
  * <p>
- * The previous code sample for a node value illustrates many features but let's look at them individually. First, the
- * class annotation describes the CDI bean names of values belonging to child-nodes (so there will be 4 child-nodes in
- * this example). Their order will be also the same as for their names in this <code>children</code> attribute.
+ * The previous code sample for a node value illustrates many features but let's look at them individually:
+ * <ol>
+ * <li>the CDI <code>&#64;Named</code> annotation is used so that the bean could be referred by name;
+ * <li>the <code>&#64;TreeNode</code> annotation is used for describing the values belonging to child-nodes (so there
+ * will be 2 child-nodes in this example, and with the same order).
+ * <li>the class optionally implements {@link ws.rocket.path.annotation.KeyBuilder} contract to create a more
+ * sophisticated key for its <code>TreeNode</code>. Otherwise, the <code>&#64;TreeNode</code> could be used instead
+ * (though, the interfaces ought to be removed then as it takes precedence).
+ * </ol>
  * <p>
- * Beans annotated with <code>TreeNode</code> also get a default name as the annotation includes
- * {@link javax.inject.Named} annotation. In this example, the bean name is "root". That would be also the
- * <code>TreeNode</code> key value but this class uses the {@link ws.rocket.path.annotation.KeyBuilder} contract to
- * instantiate its own custom <code>TreeNode</code> key. A key can also be a bean: just add the bean name or type to
- * <code>TreeNode</code> annotation to be looked up when node is created.
+ * When a node value object implements {@link ws.rocket.path.builder.TreeNodeBuilderAware} contract, it will override
+ * annotations on the same class.
  * <p>
  * Each annotation supports referring to classes either by CDI bean name(s) or Java class(es). Both methods have their
  * pros and cons, however, they cannot be mixed in one annotation declaration. When unsure, referring by class could be

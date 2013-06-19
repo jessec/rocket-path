@@ -17,10 +17,10 @@
 // @formatter:on
 
 /**
- * Builder design pattern based solution for creating trees. Instead of creating each tree node individually, the
- * builder approach simplifies tree construction by allowing tree nodes be conveniently described and delegating the
- * actual tree construction to the builder. A simple example of usage would be following:
- * 
+ * A builder-based solution for creating trees. Instead of creating each tree node individually, the builder approach
+ * simplifies construction by allowing tree nodes be conveniently described and delegating the actual construction to
+ * the builder. A simple example of usage would be following:
+ *
  * <pre>
  * TreeNode root = new TreeNodeBuilder("root", "root value")
  *  .addChild("child1", "child1 value")
@@ -28,22 +28,24 @@
  *  .addChild("child3", "child3 value")
  *  .build();
  * </pre>
- * 
+ *
+ * <h3>Key And Value Callback</h3>
  * <p>
- * Sometimes the key and value objects need to be applied a common initialization process (e.g. dependency injection).
- * For this purpose, an implementation of {@link ws.rocket.path.builder.TreeNodeCallback} can be provided to the
- * builder class constructor. Each key and value object will be provided to the callback before using these objects for
- * creating a tree node.
- * 
+ * Sometimes the <em>key</em> and <em>value</em> objects need to be applied a common initialization process (e.g.
+ * dependency injection). For this purpose, an implementation of {@link ws.rocket.path.builder.TreeNodeCallback} can be
+ * provided to the <code>TreeNodeBuilder</code> constructor. Each <em>key</em> and <em>value</em> object provided to the
+ * {@link ws.rocket.path.builder.TreeNodeBuilder#addChild(Object, Object)} method will go through the callback before
+ * passed to {@link ws.rocket.path.TreeNode} constructor.
+ * <h3>Delegation of Subtree Creation</h3>
  * <p>
- * Since declaring a huge tree in one Java file can introduce a lot of class/package imports and can make the tree
- * creator look guilty of knowing too much about other classes, the builder pattern helps to delegate some tree
- * construction work to the value objects of (sub)tree nodes. Every node value object implementing
- * {@link ws.rocket.path.builder.TreeNodeBuilderAware} is given an instance of
- * {@link ws.rocket.path.builder.TreeNodeBuilder} for the {@link ws.rocket.path.TreeNode} instance where the
- * value object is placed so that the value object could further describe the child nodes of its tree node, and so on.
- * Using this approach, value objects have an option to describe the child nodes of their tree nodes and delegate the
- * description of further descendants to the value objects of child nodes. It should reduce the problem of how much
- * classes know about other classes in an application.
+ * Since declaring a huge tree in one Java file can introduce a lot of class imports and can make the tree creator look
+ * guilty of knowing too much about other classes, the builder-approach helps to delegate some tree construction work to
+ * tree node <em>value</em> objects. Every node <em>value</em> implementing
+ * {@link ws.rocket.path.builder.TreeNodeBuilderAware} is given an instance of <code>TreeNodeBuilder</code> for the
+ * <code>TreeNode</code> instance where the <em>value</em> object is placed so that it could further describe the child
+ * nodes of its tree node. Using this approach, tree node <em>values</em> have an option to describe the child-nodes of
+ * their tree nodes and delegate the description of further descendants to the <em>values</em> of child-nodes. It should
+ * reduce the problem of how much classes know about other classes in an application.
  */
 package ws.rocket.path.builder;
+

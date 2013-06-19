@@ -4,7 +4,7 @@ apply plugin: 'java'
 apply plugin: 'checkstyle'
 apply plugin: 'eclipse'
 
-description = 'Rocket-Path -- a Tree Library'
+description = 'Rocket-Path \u2013 a Tree Library'
 version = '0.2-Beta'
 
 sourceCompatibility = 1.6
@@ -40,5 +40,8 @@ javadoc {
     overview new File(sourceSets.main.java.srcDirs.toList()[0], 'overview.html').absolutePath
     docTitle project.description + ' (version ' + project.version + ')'
     windowTitle docTitle
+    encoding 'UTF-8'
+    author true
+    links 'http://docs.oracle.com/javase/6/docs/api/', 'http://docs.jboss.org/cdi/api/1.0/'
   }
 }

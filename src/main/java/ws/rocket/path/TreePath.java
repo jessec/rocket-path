@@ -18,6 +18,7 @@
 
 package ws.rocket.path;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -60,7 +61,7 @@ import java.util.StringTokenizer;
  *
  * @author Martti Tamm
  */
-public final class TreePath implements Iterator<String> {
+public final class TreePath implements Iterator<String>, Serializable {
 
   public static final String DEFAULT_PATH_SEPARATOR = "/";
 
@@ -489,7 +490,7 @@ public final class TreePath implements Iterator<String> {
   public TreePath append(TreePath suffixPath) {
     if (this.pathSeparator == null && suffixPath.pathSeparator != null || this.pathSeparator != null
         && !this.pathSeparator.equals(suffixPath.pathSeparator)) {
-      throw new RuntimeException("Cannot append tree path that uses different path segment separator.");
+      throw new IllegalArgumentException("Cannot append tree path that uses different path segment separator.");
     }
 
     String[] path = new String[this.path.length + suffixPath.path.length];
@@ -502,14 +503,35 @@ public final class TreePath implements Iterator<String> {
   }
 
   /**
-   * @return
+   * Reports whether this path instance will include the resolved extension as part of the last segment even if the
+   * extension was found and extracted. By default, this method will always return <code>false</code>, unless modified
+   * by {@link #setExtensionToSegment(boolean)}.
+   * <p>
+   * When this method returns <code>true</code>, it means that in cases when extension was found, successfully
+   * validated, and extracted, the extension would still be appear as it were part of the last path segment (and
+   * {@link #getExtension()} will return <code>null</code>).
+   * <p>
+   * This is a feature enabling better handling of cases where extensions are expected and yet extension is also
+   * optional. Although, an extension may be valid, sometimes the extension may still be part of the resource name. For
+   * example, "data.json" may look as it were a name of file with data in JSON format. However, an application may
+   * figure out that it's just a bad name of a file with full name "data.json.pdf", which is possibly a binary version
+   * of the JSON data. In that case, the application may alter the {@link #isExtensionToSegment()} property to remember
+   * that the extracted extension should actually be treated as part of the path segment name.
+   *
+   * @return A Boolean that is <code>true</code> when extension info is suppressed and extension will appear as the
+   *         suffix of last path segment.
    */
   public boolean isExtensionToSegment() {
     return extensionToSegment;
   }
 
   /**
-   * @param extensionToSegment
+   * Alters whether possibly extracted extension should be treated as an extension or as the suffix of the last path
+   * segment. By default, {@link #isExtensionToSegment()} is <code>false</code>.
+   *
+   * @param extensionToSegment A Boolean that is <code>true</code> when the extacted extension should be overridden and
+   *        treated as suffix of the last path segment.
+   * @see #isExtensionToSegment()
    */
   public void setExtensionToSegment(boolean extensionToSegment) {
     this.extensionToSegment = extensionToSegment;

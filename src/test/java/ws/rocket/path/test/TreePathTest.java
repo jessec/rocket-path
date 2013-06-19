@@ -127,6 +127,16 @@ public final class TreePathTest {
     };
   }
 
+  @DataProvider(name = "TreePathAppendDataProvider")
+  public Object[][] getTreePathAppendData() {
+    return new Object[][] {
+      { new TreePath(null), new TreePath(null), "", null },
+      { new TreePath(null), new TreePath(""), "", null },
+      { new TreePath("/1/2/3/4/"), new TreePath("5/6/7/8/9"), "/1/2/3/4/5/6/7/8/9", null },
+      { new TreePath("a/b//c.x", null, false), new TreePath("a/b/c.d", null, false), "/a/b/c/a/b/c.d", "d" },
+    };
+  }
+
   /**
    * Tests the properties of <code>TreePath</code> to verify its segmentation logic works as expected. The input data is
    * taken from {@link #getTreePathsData()}.
@@ -320,7 +330,7 @@ public final class TreePathTest {
   }
 
   /**
-   * Tests {@link TreePath#append(TreePath)} method.
+   * Tests {@link TreePath#append(TreePath)} method with normal data.
    *
    * @param path Object to test.
    * @param toStringPath Expected <code>toString()</code> value.
@@ -328,9 +338,16 @@ public final class TreePathTest {
    * @param extension Expected path extension value.
    * @param expectLength Expected path segments count.
    */
-  @Test(dataProvider = "TreePathDataProvider")
-  public void testAppendingPaths(TreePath path, String toStringPath, String lastSegment, String extension, int expectLength) {
-    // TODO
+  @Test(dataProvider = "TreePathAppendDataProvider")
+  public void testAppendingPaths(TreePath prefix, TreePath suffix, String toStringPath, String extension) {
+    int expextLength = prefix.getPathLength() + suffix.getPathLength();
+
+    TreePath path = prefix.append(suffix);
+
+    assertEquals(path.getPosition(), prefix.getPathLength(), "Position must be at the end of prefix path.");
+    assertEquals(path.getExtension(), extension, "Extension is not correct");
+    assertEquals(path.toString(), toStringPath, "toString() path is not correct.");
+    assertEquals(path.getPathLength(), expextLength, "Length is not correct");
   }
 
   private void validatePath(String path, String prefixPath, String endsWith) {
@@ -341,4 +358,21 @@ public final class TreePathTest {
       assertTrue(path.endsWith(endsWith), "Path: [" + path + "]; EndsWith: [" + endsWith + "]");
     }
   }
+
+  /**
+   * Tests that {@link TreePath#append(TreePath)} would fail with <code>null</code> parameter.
+   */
+  @Test(expectedExceptions = NullPointerException.class)
+  public void testAppendingNullPath() {
+    new TreePath("").append(null);
+  }
+
+  /**
+   * Tests that {@link TreePath#append(TreePath)} would fail when a path with another path separator is appended.
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testAppendingPathWithOtherSeparator() {
+    new TreePath("").append(new TreePath("", ".", "/"));
+  }
+
 }

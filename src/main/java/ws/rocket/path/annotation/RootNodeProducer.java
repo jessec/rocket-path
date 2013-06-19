@@ -19,6 +19,7 @@
 package ws.rocket.path.annotation;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.Set;
 
 import javax.enterprise.context.spi.CreationalContext;
@@ -31,43 +32,55 @@ import javax.enterprise.inject.spi.InjectionTarget;
 import javax.inject.Inject;
 
 import ws.rocket.path.TreeNode;
+import ws.rocket.path.builder.TreeNodeBuilder;
+import ws.rocket.path.builder.TreeNodeBuilderAware;
 
 /**
- * Producer for root {@link TreeNode}s according to CDI (Contexts And Dependency Injection) standard.
+ * CDI (Contexts And Dependency Injection) producer creating root {@link TreeNode}s.
  * <p>
  * A field or method wishing for a tree to be constructed, must use {@link Inject} and {@link RootNode} annotations
- * where tree injection must be done. This producer uses meta information from annotations for resolving the key and
- * value objects with possible child <code>TreeNode</code>s, and finally returns the root node of the initialized tree.
- * Annotations affecting the construction are <code>RootNode</code> (on the field/method being injected), which points
- * to the value object of the root node, and {@link ws.rocket.path.annotation.TreeNode} (on node value objects), which
- * may describe the current node key, and value objects of child-nodes.
+ * where tree injection must be done. For example:
+ *
+ * <pre>
+ * &#064;Inject
+ * &#064;RootNode
+ * private TreeNode hierarchy;
+ * </pre>
+ * <p>
+ * This producer uses meta information from the <code>&#064;RootNode</code> annotation for looking up the value object
+ * of the root node. After that, the producer uses {@link ws.rocket.path.annotation.TreeNode} annotation on the value
+ * objects for determining the key value and child-nodes of the current node. When a value object implements
+ * {@link TreeNodeBuilder} contract, its method will be used for creating child-nodes instead of the references in
+ * <code>&#064;TreeNode</code> annotation.
  * <p>
  * The algorithm follows:
  * <ol>
- * <li>This producer is given an injection point annotated with <code>RootNode</code> and of type <code>TreeNode</code>.
- * <li>The tree node value object of the currently examined node is first looked for by value bean type and then, if
- * that failed, by value bean name (from the annotation).
- * <li>A reference to the value object is acquired.
- * <li>If the value object class is annotated with <code>TreeNode</code>:
+ * <li>This producer is given an injection point with <code>&#064;RootNode</code> annotation and of type
+ * <code>TreeNode</code>.
+ * <li>The tree node value object is looked up (first successful lookup will become the value object):
  * <ul>
- * <li>if the annotation contains info about the node key (name or type), the key is looked for and used on the node
- * being created.
- * <li>if the annotation contains info about the child nodes (their value objects by name or type), the child nodes are
- * created as described in steps 2-6 using the meta information from the annotation.
+ * <li>by CDI bean type (from the <code>&#064;RootNode</code> or <code>&#064;TreeNode</code> annotation when present);
+ * <li>by CDI bean name (from the <code>&#064;RootNode</code> or <code>&#064;TreeNode</code> annotation when present);
+ * <li>if the injection point is class field, by CDI bean name (using field name).
  * </ul>
- * <li>Otherwise, the node receives the bean name (a string) and is left without child nodes.
- * <li>The tree node is created and returned.
+ * <li>The key for the tree node is resolved and created (first successful result will become the key object):
+ * <ul>
+ * <li>if value object implements {@link KeyBuilder}, the value returned by its method will be used for the key;
+ * <li>CDI bean lookup by type (from the <code>&#064;TreeNode</code> annotation when present);
+ * <li>CDI bean lookup by name (from the <code>&#064;TreeNode</code> annotation when present);
+ * <li>default to <code>null</code>.
+ * </ul>
+ * <li>If value object implements {@link TreeNodeBuilder}, the child nodes are defined by the value object as described
+ * in the builder documentation (however, note that this approach skips CDI dependency injection).
+ * <li>Otherwise, the child-nodes of the current tree node, when present, are resolved and created as described in steps
+ * 2-6.
+ * <li>A tree node instance is created using the resolved key object, value object, and child-nodes.
  * </ol>
  * <p>
  * As can been seen from the algorithm, the tree is created starting from the leaves of the nodes, although the meta
  * information is read starting from the root of the tree. In addition, thanks to CDI, all associated node key and value
  * objects get their annotated dependencies injected.
- * <p>
- * Note: when node value object is missing <code>TreeNode</code> and {@link javax.inject.Named} annotations, the node
- * key would default to <code>null</code> as the bean name is <code>null</code>. However, currently the key value is
- * manually composed just as it would be done with the <code>Named</code> annotation. This fact is explicitly brought
- * out here to avoid surprises, but this behaviour can also be altered in the future.
- * 
+ *
  * @author Martti Tamm
  */
 public final class RootNodeProducer {
@@ -77,8 +90,11 @@ public final class RootNodeProducer {
 
   /**
    * Produces a tree where root {@link TreeNode} has the value object with the same name and/or type as provided in the
-   * {@link RootNode} annotation.
-   * 
+   * {@link RootNode} annotation (or class field name, if injection point is a class field).
+   * <p>
+   * Producer fails with an exception when the injection point does not declare neither root node value bean name nor
+   * type, and injection point is not a class field.
+   *
    * @param injectionPoint The point where the tree is to be injected.
    * @return The created tree.
    */
@@ -97,8 +113,10 @@ public final class RootNodeProducer {
       return findTreeNode(rootAnnotation.type());
     } else if (rootAnnotation.value() != null && rootAnnotation.value().trim().length() > 0) {
       return findTreeNode(rootAnnotation.value());
-    } else {
+    } else if (injectionPoint.getMember() instanceof Field) {
       return findTreeNode(injectionPoint.getMember().getName());
+    } else {
+      throw new RuntimeException("No reference to tree node value bean: " + injectionPoint);
     }
   }
 
@@ -107,7 +125,8 @@ public final class RootNodeProducer {
     if (beans.isEmpty()) {
       throw new RuntimeException("Could not find TreeNode value by name '" + beanName + "'.");
     } else if (beans.size() > 1) {
-      throw new RuntimeException("Currently only one TreeNode value is expected. Name: '" + beanName + "'.");
+      throw new RuntimeException("Currently only one TreeNode value is expected. Name: '" + beanName + ", count: "
+          + beans.size() + "'.");
     }
 
     return createTreeNode(beans.iterator().next());
@@ -118,7 +137,8 @@ public final class RootNodeProducer {
     if (beans.isEmpty()) {
       throw new RuntimeException("Could not find TreeNode value by type: " + beanType);
     } else if (beans.size() > 1) {
-      throw new RuntimeException("Currently only one TreeNode value is expected to exist. Type: " + beanType);
+      throw new RuntimeException("Currently only one TreeNode value is expected. Type: " + beanType + ", count: "
+          + beans.size() + "'.");
     }
 
     return createTreeNode(beans.iterator().next());
@@ -130,34 +150,17 @@ public final class RootNodeProducer {
     ws.rocket.path.annotation.TreeNode meta = bean.getBeanClass().getAnnotation(
         ws.rocket.path.annotation.TreeNode.class);
 
-    return new TreeNode(resolveKey(bean, value, meta), value, resolveChildren(bean, meta));
+    TreeNode result;
+
+    if (value instanceof TreeNodeBuilderAware) {
+      result = new TreeNodeBuilder(resolveKey(bean, value, meta), value).build();
+    } else {
+      result = new TreeNode(resolveKey(bean, value, meta), value, resolveChildren(bean, meta));
+    }
+
+    return result;
   }
 
-  /**
-   * Attempts to resolve a key for a tree node using the value bean. The key is resolved as following:
-   * <ul>
-   * <li>when the value object implements {@link KeyBuilder}, its <code>buildKey()</code> method is called and the
-   * returned value will be used as the key. When the value is not null, any dependencies defined that object will be
-   * populated.</li>
-   * <li>when the value bean is annotated with <code>&#064;TreeNode</code>, the key will be resolved as following:
-   * <ol>
-   * <li>when attribute <code>key</code> is not a blank or empty string, its value (as it is) will be used for tree node
-   * key;</li>
-   * <li>when attribute <code>keyType</code> is not an Object class, the class will be retrieved using CDI;</li>
-   * <li>when attribute <code>keyName</code> is not a blank or empty string, the value will be used for a CDI bean
-   * lookup by bean name;</li>
-   * <li>when CDI bean lookpup matches zero or more than one beans, the key creation will fail with a runtime exception,
-   * otherwise the found bean instance will used as the key.</li>
-   * </ol>
-   * </li>
-   * <li>otherwise, the node will get <code>null</code> for its key.</li>
-   * </ul>
-   * 
-   * @param valueBean The CDI description of the tree node value bean.
-   * @param value The instance of the tree node value bean.
-   * @param meta The <code>&#064;TreeNode</code> annotation found on the value bean.
-   * @return The resolved key (an object or <code>null</code>).
-   */
   private Object resolveKey(Bean<?> valueBean, Object value, ws.rocket.path.annotation.TreeNode meta) {
     Object key = null;
 
@@ -200,9 +203,9 @@ public final class RootNodeProducer {
 
   private TreeNode[] resolveChildren(Bean<?> valueBean, ws.rocket.path.annotation.TreeNode meta) {
 
-    if (meta == null || meta.children().length == 0 && meta.childTypes().length == 0) {
+    if (meta == null || meta.childNames().length == 0 && meta.childTypes().length == 0) {
       return null;
-    } else if (meta.children().length > 0 && meta.childTypes().length > 0) {
+    } else if (meta.childNames().length > 0 && meta.childTypes().length > 0) {
       throw new RuntimeException("Child-TreeNode values are identified with both names and types; expected only one "
           + "to be provided (preferably types).");
     }
@@ -217,10 +220,10 @@ public final class RootNodeProducer {
         childNodes[i++] = findTreeNode(childType);
       }
     } else {
-      childNodes = new TreeNode[meta.children().length];
+      childNodes = new TreeNode[meta.childNames().length];
       int i = 0;
 
-      for (String childName : meta.children()) {
+      for (String childName : meta.childNames()) {
         childNodes[i++] = findTreeNode(childName);
       }
     }
