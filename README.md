@@ -69,13 +69,16 @@ There are three ways to construct a tree:
 
 	```java
 	// By root node value object type:
-	@Inject @RootNode(type = DevelopmentTeam.class) private TreeNode team;
+	@Inject @RootNode(type = DevelopmentTeam.class)
+	private TreeNode team;
 	
 	// By root node value bean name (explicit)
-	@Inject @RootNode("teamA") private TreeNode team;
+	@Inject @RootNode("teamA")
+	private TreeNode team;
 	
 	// By root node value bean name (implicit)
-	@Inject @RootNode private TreeNode teamA;
+	@Inject @RootNode
+	private TreeNode teamA;
 	```
 
 Tree Path
@@ -103,7 +106,7 @@ More information
 ----------------
 
 Although this README covers the most use-cases, please refer to the complete
-[JavaDoc](http://mrtamm.github.com/rocket-path/javadoc/0.1/) or the
+[JavaDoc](http://mrtamm.github.com/rocket-path/javadoc/0.2/) or the
 [User Guide](https://github.com/mrtamm/rocket-path/wiki/User-Guide) of the *Rocket-Path* library to get more detailed
 information.
 

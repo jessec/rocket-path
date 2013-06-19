@@ -5,7 +5,7 @@ apply plugin: 'checkstyle'
 apply plugin: 'eclipse'
 
 description = 'Rocket-Path \u2013 a Tree Library'
-version = '0.2-Beta'
+version = '0.2'
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
