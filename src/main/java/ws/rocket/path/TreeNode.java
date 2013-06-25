@@ -35,13 +35,13 @@ import java.util.List;
  * <p>
  * This tree node can be constructed only once. In addition, <code>TreeNode</code> is serializable as long as its keys,
  * values and children are also serializable.
- * 
+ *
  * @see ws.rocket.path.annotation.KeyBuilder
  * @author Martti Tamm
  */
 public final class TreeNode implements Serializable {
 
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 5580477009818087529L;
 
   private Object key;
 
@@ -58,7 +58,7 @@ public final class TreeNode implements Serializable {
 
   /**
    * Creates a tree node with given key, value, and children.
-   * 
+   *
    * @param key A key for the tree node.
    * @param value A value for the tree node.
    * @param children Child-nodes for the tree node.
@@ -75,7 +75,7 @@ public final class TreeNode implements Serializable {
 
   /**
    * Provides the key of this tree node.
-   * 
+   *
    * @return Tree node key.
    */
   public Object getKey() {
@@ -84,7 +84,7 @@ public final class TreeNode implements Serializable {
 
   /**
    * Provides the value of this tree node.
-   * 
+   *
    * @return Tree node value.
    */
   public Object getValue() {
@@ -94,7 +94,7 @@ public final class TreeNode implements Serializable {
   /**
    * Provides an immutable list of child nodes of this tree node. The returned value must not be used for
    * synchronization.
-   * 
+   *
    * @return The child-nodes of this tree node.
    */
   public List<TreeNode> getChildren() {

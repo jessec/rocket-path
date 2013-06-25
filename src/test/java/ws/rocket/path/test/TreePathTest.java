@@ -19,6 +19,7 @@
 package ws.rocket.path.test;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertNull;
@@ -67,74 +68,109 @@ public final class TreePathTest {
     final String[] htmlLower = { "html" };
     final String[] htmlUpper = { "HTML" };
 
+    // @formatter:off
     return new Object[][] {
-      // Testing the simplest constructor (it ; no extension info)
-      // 1. path is segmented using default separator
-      // 2. no extension is extracted nor validated
-      { new TreePath(null), "", null, null, 0 },
-      { new TreePath(""), "", null, null, 0 },
-      { new TreePath("/path/to////my/web-page.rss"), "/path/to/my/web-page.rss", "web-page.rss", null, 4 },
-      { new TreePath("rel.path.to.my/web.page-html"), "/rel.path.to.my/web.page-html", "web.page-html", null, 2 },
+        // Testing the simplest constructor (it has no extension info)
+        // 1. path is segmented using default separator
+        // 2. no extension is extracted nor validated
+        { new TreePath(null), "", null, null, 0 },
+        { new TreePath(""), "", null, null, 0 },
+        { new TreePath("/path/to////my/web-page.rss"), "/path/to/my/web-page.rss", "web-page.rss", null, 4 },
+        { new TreePath("rel.path.to.my/web.page-html"), "/rel.path.to.my/web.page-html", "web.page-html", null, 2 },
 
-      // Testing constructor with three parameters
-      // 1. applies custom segment & extension separators
-      { new TreePath(null, null, null), "", null, null, 0 },
-      { new TreePath("", "-", "="), "", null, null, 0 },
-      { new TreePath("-path-to----my-web/page=rss", null, null), "-path-to----my-web/page=rss", "-path-to----my-web/page=rss", null, 1 },
-      { new TreePath("-path-to----my-web/page=rss", "", ""), "-path-to----my-web/page=rss", "-path-to----my-web/page=rss", null, 1 },
-      { new TreePath("-path-to----my-web/page=rss", "-", null), "-path-to-my-web/page=rss", "web/page=rss", null, 4 },
-      { new TreePath("rel.path.to.my/web.page-html", ".", null), ".rel.path.to.my/web.page-html", "page-html", null, 5 },
-      { new TreePath("-path-to----my-web/page=rss", "-", "="), "-path-to-my-web/page=rss", "web/page", "rss", 4 },
-      { new TreePath("rel.path.to.my/web.page-html", ".", "="), ".rel.path.to.my/web.page-html", "page-html", null, 5 },
+        // Testing constructor with three parameters
+        // 1. applies custom segment & extension separators
+        { new TreePath(null, null, null), "", null, null, 0 },
+        { new TreePath("", "-", "="), "", null, null, 0 },
+        { new TreePath("-path-to----my-web/page=rss", null, null), "-path-to----my-web/page=rss",
+            "-path-to----my-web/page=rss", null, 1 },
+        { new TreePath("-path-to----my-web/page=rss", "", ""), "-path-to----my-web/page=rss",
+            "-path-to----my-web/page=rss", null, 1 },
+        { new TreePath("-path-to----my-web/page=rss", "-", null), "-path-to-my-web/page=rss", "web/page=rss", null, 4 },
+        { new TreePath("rel.path.to.my/web.page-html", ".", null), ".rel.path.to.my/web.page-html", "page-html", null,
+            5 },
+        { new TreePath("-path-to----my-web/page=rss", "-", "="), "-path-to-my-web/page=rss", "web/page", "rss", 4 },
+        { new TreePath("rel.path.to.my/web.page-html", ".", "="), ".rel.path.to.my/web.page-html", "page-html", null,
+            5 },
 
-      // Testing constructor with three parameters:
-      // 1. path & extension are interpreted using default separators (correspondingly: '/' and '.')
-      // 2. validates extension to match a list of values in the array
-      // 3. boolean alters case-sensitivity when matching extension to values in the array.
-      { new TreePath(null, null, false), "", null, null, 0 },
-      { new TreePath(null, null, true), "", null, null, 0 },
-      { new TreePath("", null, false), "", null, null, 0 },
-      { new TreePath("", null, true), "", null, null, 0 },
-      { new TreePath("/path/to////web-page.rss", extEmpty, false), "/path/to/web-page.rss", "web-page", "rss", 3 },
-      { new TreePath("/path/to////web-page.rss", extEmpty, true), "/path/to/web-page.rss", "web-page", "rss", 3 },
-      { new TreePath("/path/to////MY/web-page.rss", rssLower, false), "/path/to/MY/web-page.rss", "web-page", "rss", 4 },
-      { new TreePath("/path/to////MY/web-page.rss", rssLower, true), "/path/to/MY/web-page.rss", "web-page", "rss", 4 },
-      { new TreePath("/path/to////my/web-page.rss", rssUpper, false), "/path/to/my/web-page.RSS", "web-page", "RSS", 4 },
-      { new TreePath("/path/to////my/web-page.rss", rssUpper, true), "/path/to/my/web-page.rss", "web-page.rss", null, 4 },
+        // Testing constructor with three parameters:
+        // 1. path & extension are interpreted using default separators (correspondingly: '/' and '.')
+        // 2. validates extension to match a list of values in the array
+        // 3. boolean alters case-sensitivity when matching extension to values in the array.
+        { new TreePath(null, null, false), "", null, null, 0 },
+        { new TreePath(null, null, true), "", null, null, 0 },
+        { new TreePath("", null, false), "", null, null, 0 },
+        { new TreePath("", null, true), "", null, null, 0 },
+        { new TreePath("/path/to////web-page.rss", extEmpty, false), "/path/to/web-page.rss", "web-page", "rss", 3 },
+        { new TreePath("/path/to////web-page.rss", extEmpty, true), "/path/to/web-page.rss", "web-page", "rss", 3 },
+        { new TreePath("/path/to////MY/web-page.rss", rssLower, false), "/path/to/MY/web-page.rss", "web-page", "rss",
+            4 },
+        { new TreePath("/path/to////MY/web-page.rss", rssLower, true), "/path/to/MY/web-page.rss", "web-page", "rss",
+            4 },
+        { new TreePath("/path/to////my/web-page.rss", rssUpper, false), "/path/to/my/web-page.RSS", "web-page", "RSS",
+            4 },
+        { new TreePath("/path/to////my/web-page.rss", rssUpper, true), "/path/to/my/web-page.rss", "web-page.rss",
+            null, 4 },
 
-      // Testing constructor with five parameters:
-      // 1. applies custom segment & extension separators
-      // 2. validates extension to match a list of values in the array
-      // 3. boolean alters case-sensitivity when matching extension to values in the array.
-      { new TreePath(null, null, null, null, false), "", null, null, 0 },
-      { new TreePath(null, null, null, null, true), "", null, null, 0 },
-      { new TreePath("", null, null, null, false), "", null, null, 0 },
-      { new TreePath("", null, null, null, true), "", null, null, 0 },
-      { new TreePath("relpath.to......my/web.page", null, null, null, false), "relpath.to......my/web.page", "relpath.to......my/web.page", null, 1 },
-      { new TreePath("relpath.to......my/web.page", "", "", null, false), "relpath.to......my/web.page", "relpath.to......my/web.page", null, 1 },
-      { new TreePath("relpath.to......my/web.page", ".", "/", null, false), ".relpath.to.my/web.page", "page", null, 4 },
-      { new TreePath("relpath.to......my/web.page", ".", "/", null, true), ".relpath.to.my/web.page", "page", null, 4 },
-      { new TreePath("relpath.to......my/web.page", ".", "/", extEmpty, false), ".relpath.to.my/web.page", "page", null, 4 },
-      { new TreePath("relpath.to......my/web.page", ".", "/", extEmpty, true), ".relpath.to.my/web.page", "page", null, 4 },
-      { new TreePath("relpath.to......my/web", ".", "/", null, false), ".relpath.to.my/web", "my", "web", 3 },
-      { new TreePath("relpath.to......my/web", ".", "/", null, true), ".relpath.to.my/web", "my", "web", 3 },
-      { new TreePath("relpath.TO......my/web", ".", "/", extEmpty, false), ".relpath.TO.my/web", "my", "web", 3 },
-      { new TreePath("relpath.TO......my/web", ".", "/", extEmpty, true), ".relpath.TO.my/web", "my", "web", 3 },
-      { new TreePath("rel.path.to......my/web.page/html", ".", "/", htmlLower, false), ".rel.path.to.my/web.page/html", "page", "html", 5 },
-      { new TreePath("rel.path.to......my/web.page/html", ".", "/", htmlLower, true), ".rel.path.to.my/web.page/html", "page", "html", 5 },
-      { new TreePath("rel.path.to......my/web.page/html", ".", "/", htmlUpper, false), ".rel.path.to.my/web.page/HTML", "page", "HTML", 5 },
-      { new TreePath("rel.path.to......my/web.page/html", ".", "/", htmlUpper, true), ".rel.path.to.my/web.page/html", "page/html", null, 5 },
+        // Testing constructor with five parameters:
+        // 1. applies custom segment & extension separators
+        // 2. validates extension to match a list of values in the array
+        // 3. boolean alters case-sensitivity when matching extension to values in the array.
+        { new TreePath(null, null, null, null, false), "", null, null, 0 },
+        { new TreePath(null, null, null, null, true), "", null, null, 0 },
+        { new TreePath("", null, null, null, false), "", null, null, 0 },
+        { new TreePath("", null, null, null, true), "", null, null, 0 },
+        { new TreePath("relpath.to......my/web.page", null, null, null, false), "relpath.to......my/web.page",
+            "relpath.to......my/web.page", null, 1 },
+        { new TreePath("relpath.to......my/web.page", "", "", null, false), "relpath.to......my/web.page",
+            "relpath.to......my/web.page", null, 1 },
+        { new TreePath("relpath.to......my/web.page", ".", "/", null, false), ".relpath.to.my/web.page", "page", null,
+            4 },
+        { new TreePath("relpath.to......my/web.page", ".", "/", null, true), ".relpath.to.my/web.page", "page", null,
+            4 },
+        { new TreePath("relpath.to......my/web.page", ".", "/", extEmpty, false), ".relpath.to.my/web.page", "page",
+            null, 4 },
+        { new TreePath("relpath.to......my/web.page", ".", "/", extEmpty, true), ".relpath.to.my/web.page", "page",
+            null, 4 },
+        { new TreePath("relpath.to......my/web", ".", "/", null, false), ".relpath.to.my/web", "my", "web", 3 },
+        { new TreePath("relpath.to......my/web", ".", "/", null, true), ".relpath.to.my/web", "my", "web", 3 },
+        { new TreePath("relpath.TO......my/web", ".", "/", extEmpty, false), ".relpath.TO.my/web", "my", "web", 3 },
+        { new TreePath("relpath.TO......my/web", ".", "/", extEmpty, true), ".relpath.TO.my/web", "my", "web", 3 },
+        { new TreePath("rel.path.to......my/web.page/html", ".", "/", htmlLower, false),
+            ".rel.path.to.my/web.page/html", "page", "html", 5 },
+        { new TreePath("rel.path.to......my/web.page/html", ".", "/", htmlLower, true),
+            ".rel.path.to.my/web.page/html", "page", "html", 5 },
+        { new TreePath("rel.path.to......my/web.page/html", ".", "/", htmlUpper, false),
+            ".rel.path.to.my/web.page/HTML", "page", "HTML", 5 },
+        { new TreePath("rel.path.to......my/web.page/html", ".", "/", htmlUpper, true),
+            ".rel.path.to.my/web.page/html", "page/html", null, 5 }
     };
+    // @formatter:on
   }
 
+  /**
+   * Test data for trying to append paths.
+   * <p>
+   * Parameters:
+   * <ol>
+   * <li><code>TreePath</code> to append to,
+   * <li><code>TreePath</code> to append to the first path,
+   * <li>expected <code>toString()</code> value,
+   * <li>expected extension value,
+   * </ol>
+   *
+   * @return Test data.
+   */
   @DataProvider(name = "TreePathAppendDataProvider")
   public Object[][] getTreePathAppendData() {
+    // @formatter:off
     return new Object[][] {
-      { new TreePath(null), new TreePath(null), "", null },
-      { new TreePath(null), new TreePath(""), "", null },
-      { new TreePath("/1/2/3/4/"), new TreePath("5/6/7/8/9"), "/1/2/3/4/5/6/7/8/9", null },
-      { new TreePath("a/b//c.x", null, false), new TreePath("a/b/c.d", null, false), "/a/b/c/a/b/c.d", "d" },
+        { new TreePath(null), new TreePath(null), "", null },
+        { new TreePath(null), new TreePath(""), "", null },
+        { new TreePath("/1/2/3/4/"), new TreePath("5/6/7/8/9"), "/1/2/3/4/5/6/7/8/9", null },
+        { new TreePath("a/b//c.x", null, false), new TreePath("a/b/c.d", null, false), "/a/b/c/a/b/c.d", "d" }
     };
+    // @formatter:on
   }
 
   /**
@@ -148,7 +184,8 @@ public final class TreePathTest {
    * @param expectLength Expected path segments count.
    */
   @Test(dataProvider = "TreePathDataProvider")
-  public void testSegmentation(TreePath path, String toStringPath, String lastSegment, String extension, int expectLength) {
+  public void testSegmentation(TreePath path, String toStringPath, String lastSegment, String extension,
+      int expectLength) {
     assertEquals(path.getPosition(), 0, "Expected path to be at first position (i.e. 0).");
     assertEquals(path.toString(), toStringPath, "toString() path is not correct.");
 
@@ -157,11 +194,13 @@ public final class TreePathTest {
       assertNull(path.getExtension(), "Path extension must be null when last path segment is null.");
       assertNull(extension, "Provided extension must be null when provided last path segment is also null.");
     } else {
+      assertFalse(path.isPathEmpty(), "Path must not be empty.");
       assertEquals(path.end().getPrevious(), lastSegment, "Last path segment  is not correct.");
       assertEquals(path.getExtension(), extension, "Path extension is not correct.");
 
       if (extension != null) {
         path.setExtensionToSegment(true);
+        assertTrue(path.isExtensionToSegment());
         assertNull(path.getExtension(), "Path extension was expected to be moved back to last path segment.");
 
         String last = path.getPrevious(); // The last path segment.
@@ -173,9 +212,11 @@ public final class TreePathTest {
             "Length of last path segment must be eqaul to the lengths of expected last segment and extension + 1.");
 
         path.setExtensionToSegment(false);
+        assertFalse(path.isExtensionToSegment());
 
         assertEquals(path.getExtension(), extension, "Path extension was expected to be restored.");
-        assertEquals(path.getPrevious(), lastSegment, "Last path segment without extension was expected to be restored.");
+        assertEquals(path.getPrevious(), lastSegment,
+            "Last path segment without extension was expected to be restored.");
       }
     }
 
@@ -188,11 +229,11 @@ public final class TreePathTest {
    * @param path Object to test.
    * @param toStringPath Expected <code>toString()</code> value.
    * @param lastSegment Expected last path segment value.
-   * @param extension Expected path extension value.
+   * @param ext Expected path extension value.
    * @param expectLength Expected path segments count.
    */
   @Test(dataProvider = "TreePathDataProvider")
-  public void testNavigation(TreePath path, String toStringPath, String lastSegment, String extension, int expectLength) {
+  public void testNavigation(TreePath path, String toStringPath, String lastSegment, String ext, int expectLength) {
     assertEquals(path.getPosition(), 0, "Expected path to be at first position (i.e. 0).");
 
     int loopCount = 0;
@@ -240,7 +281,8 @@ public final class TreePathTest {
    * @param expectLength Expected path segments count.
    */
   @Test(dataProvider = "TreePathDataProvider")
-  public void testPreviousFollowingPaths(TreePath path, String toStringPath, String lastSegment, String extension, int expectLength) {
+  public void testPreviousFollowingPaths(TreePath path, String toStringPath, String lastSegment, String extension,
+      int expectLength) {
     if (path.getPathLength() <= 1) {
       return;
     }
@@ -301,7 +343,8 @@ public final class TreePathTest {
    * @param expectLength Expected path segments count.
    */
   @Test(dataProvider = "TreePathDataProvider", expectedExceptions = NoSuchElementException.class)
-  public void testIllegalPreviousFailure(TreePath path, String toStringPath, String lastSegment, String extension, int expectLength) {
+  public void testIllegalPreviousFailure(TreePath path, String toStringPath, String lastSegment, String extension,
+      int expectLength) {
     int pos = path.beginning().getPosition();
     try {
       path.previous();
@@ -320,7 +363,8 @@ public final class TreePathTest {
    * @param expectLength Expected path segments count.
    */
   @Test(dataProvider = "TreePathDataProvider", expectedExceptions = NoSuchElementException.class)
-  public void testIllegalNextFailure(TreePath path, String toStringPath, String lastSegment, String extension, int expectLength) {
+  public void testIllegalNextFailure(TreePath path, String toStringPath, String lastSegment, String extension,
+      int expectLength) {
     int pos = path.end().getPosition();
     try {
       path.next();
@@ -330,13 +374,20 @@ public final class TreePathTest {
   }
 
   /**
+   * Tests for a failure when attempting to call {@link TreePath#remove()} method.
+   */
+  @Test(expectedExceptions = UnsupportedOperationException.class)
+  public void testRemoveFailure() {
+    new TreePath("any/path").remove();
+  }
+
+  /**
    * Tests {@link TreePath#append(TreePath)} method with normal data.
    *
-   * @param path Object to test.
-   * @param toStringPath Expected <code>toString()</code> value.
-   * @param lastSegment Expected last path segment value.
+   * @param prefix Path to test.
+   * @param suffix Path to append.
+   * @param toStringPath Expected <code>toString()</code> value of the final path.
    * @param extension Expected path extension value.
-   * @param expectLength Expected path segments count.
    */
   @Test(dataProvider = "TreePathAppendDataProvider")
   public void testAppendingPaths(TreePath prefix, TreePath suffix, String toStringPath, String extension) {

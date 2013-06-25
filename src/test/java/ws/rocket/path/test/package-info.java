@@ -17,9 +17,8 @@
 // @formatter:on
 
 /**
- * Tests for the Rocket-Path library. The tests are organized under this package similarly to the way the functionality
- * is organized in the main package. In addition, there is <code>ws.rocket.path.test.integration</code> for integration
- * tests.
+ * Tests for the <em>Rocket-Path</em> library. The tests are organized under this package similarly to the way the
+ * functionality is organized in the main package.
  */
 package ws.rocket.path.test;
 

@@ -17,8 +17,8 @@ Overview
 --------
 
 The tree nodes of this library are immutable, serializable, and data within is totally accesible through getter methods.
-Created trees cannot be altered after creation. To alter a tree, a new tree must be created where unchanged subtrees may
-be reused from the previous tree.
+Created trees cannot be altered after creation. To alter a tree, a new tree must be created where unchanged subtrees
+may be reused from the previous tree.
 
 There are three ways to construct a tree:
 
@@ -115,8 +115,8 @@ maintained separately: mrtamm/rocket-embedded.
 
 ### Dependencies ###
 
-*Rocket-Path* is compatible with Java 6 or newer runtime. If _Contexts And Dependecy Injection_ (CDI) is installed at the
-platform, the annotations-based approch for constructing trees is also enabled.
+*Rocket-Path* is compatible with Java 6 or newer runtime. If _Contexts And Dependecy Injection_ (CDI) is installed at
+the platform, the annotations-based approch for constructing trees is also enabled.
 
 There are no further dependencies.
 
@@ -129,9 +129,9 @@ This project uses [Gradle](http://www.gradle.org/) for
 * executing unit tests (``gradle test``),
 * building the project (``gradle jar``).
 
-To view more available tasks, execute following command:
+The main command for running all tasks should be just ``gradle``. To view more available tasks, execute the following:
 
-	gradle tasks [--all]
+	gradle tasks
 
 Gradle uses ``./build/`` directory for storing build process results:
 

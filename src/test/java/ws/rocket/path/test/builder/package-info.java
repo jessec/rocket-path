@@ -17,7 +17,7 @@
 // @formatter:on
 
 /**
- * Tests for the the builder-based approach of constructing trees in Rocket-Path library.
+ * Tests for verifying the builder-based approach of constructing trees in <em>Rocket-Path</em> library.
  */
 package ws.rocket.path.test.builder;
 

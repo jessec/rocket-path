@@ -63,8 +63,17 @@ import java.util.StringTokenizer;
  */
 public final class TreePath implements Iterator<String>, Serializable {
 
+  private static final long serialVersionUID = 8137267976602701945L;
+
+  /**
+   * The default path segments separator used by <code>TreePath</code>.
+   */
   public static final String DEFAULT_PATH_SEPARATOR = "/";
 
+  /**
+   * The default extension separator used by <code>TreePath</code> for extracting a non-empty extension from the last
+   * path-segment.
+   */
   public static final String DEFAULT_EXTENSION_SEPARATOR = ".";
 
   private final String[] path;
