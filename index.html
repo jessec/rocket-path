@@ -4,7 +4,7 @@
   <head>
     <meta charset='utf-8' />
     <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Rocket-Path : A simple tree structure library for storing objects and for deliverying actions to them using path, semantic contracts, and a delivery algorithm." />
+    <meta name="description" content="Rocket-Path : Small, simple, and helpful tree library written in Java." />
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
@@ -19,7 +19,7 @@
           <a id="forkme_banner" href="https://github.com/mrtamm/rocket-path">View on GitHub</a>
 
           <h1 id="project_title">Rocket-Path</h1>
-          <h2 id="project_tagline">A simple tree structure library for storing objects and for deliverying actions to them using path, semantic contracts, and a delivery algorithm.</h2>
+          <h2 id="project_tagline">Small, simple, and helpful tree library written in Java.</h2>
 
             <section id="downloads">
               <a class="zip_download_link" href="https://github.com/mrtamm/rocket-path/zipball/master">Download this project as a .zip file</a>
@@ -31,47 +31,129 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h1>Rocket-Path Library</h1>
+        <h1>
+<a name="rocket-path" class="anchor" href="#rocket-path"><span class="octicon octicon-link"></span></a>Rocket-Path</h1>
 
-<p>This light Java library provides a simple tree structure, where each node can have a key, a value, and any number of child nodes. A tree constructed using these nodes can provide a structure to an application (or part of it) by binding together components (objects) working as a whole. Application uses the root node as the starting point for deliverying requests or actions to application objects. Therefore, the library is useful for applications where a path (e.g. HTTP request path) can be used for identifying a component. As an example, Rocket-Path can complement the Java Servlet API to simplify web app (component) development.</p>
+<p>A simple tree structure, written in Java, where each node can have a <em>key</em>, a <em>value</em>, and any number of <em>child-nodes</em>.
+The library also provides two additional solutions to simplify construction of such trees. Helper class <code>TreePath</code> is
+provided for representing paths to tree nodes and for tracking the current position in the path. All in all, the
+<em>Rocket-Path</em> library is small, light-weight, but helpful for constructing simple trees and navigating through them.</p>
 
-<p>The tree nodes of this library are immutable, serializable, and data within is totally accesible through getter methods.</p>
-
-<p>All-in-all, the library provides following:</p>
-
-<ul>
-<li>a <code>TreeNode</code> class for constructing trees with provided keys and values;</li>
-<li>two alternative/simplifying methods for constructing a tree;</li>
-<li>default contracts for components capable of handling HTTP requests;</li>
-<li>sample algorithms for HTTP-based applications;</li>
-<li>a sample view factory for rendering HTTP responses.</li>
-</ul><p>As a bonus, the library user gets an application structure that...</p>
+<p>Using tree structures for solving complicated tasks in an application has many benefits, including the following:</p>
 
 <ul>
 <li>can evolve (scale) over time;</li>
 <li>can be visualized;</li>
 <li>can be tested;</li>
 <li>has normal memory usage.</li>
-</ul><h2>Overview</h2>
+</ul><h2>
+<a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>Overview</h2>
+
+<p>The tree nodes of this library are immutable, serializable, and data within is totally accesible through getter methods.
+Created trees cannot be altered after creation. To alter a tree, a new tree must be created where unchanged subtrees
+may be reused from the previous tree.</p>
 
 <p>There are three ways to construct a tree:</p>
 
 <ol>
-<li>creating instances of <code>TreeNode</code> class directly;</li>
-<li>using <code>TreeNodeBuilder</code> as a more convenient way;</li>
 <li>
-<code>@TreeNode</code> annotations on node value classes (with some help from CDI).</li>
-</ol><p>To be able to write algorithms that deliver actions to nodes, an application should introduce some interfaces
-(contracts), which describe the characteristics of the objects. Rocket-Path library comes with some contracts for HTTP
-request handlers that integrates well with the <em>Java Servlet (3.0) API</em>.</p>
+<p><strong>Creating instances of <code>TreeNode</code> class directly</strong></p>
 
-<p>Please refer to the <a href="http://mrtamm.github.com/rocket-path/javadoc/0.1/">JavaDoc</a> or the <a href="https://github.com/mrtamm/rocket-path/wiki/User-Guide">User Guide</a> of the Rocket-Path library to get more detailed information.</p>
+<div class="highlight"><pre><span class="c1">// new TreeNode(Object key, Object value, TreeNode... children);</span>
+<span class="n">TreeNode</span> <span class="n">alice</span>    <span class="o">=</span> <span class="k">new</span> <span class="n">TreeNode</span><span class="o">(</span><span class="n">Integer</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="mi">1</span><span class="o">),</span> <span class="s">"Alice"</span><span class="o">);</span>
+<span class="n">TreeNode</span> <span class="n">bob</span>      <span class="o">=</span> <span class="k">new</span> <span class="n">TreeNode</span><span class="o">(</span><span class="n">Integer</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="mi">2</span><span class="o">),</span> <span class="s">"Bob"</span><span class="o">);</span>
+<span class="n">TreeNode</span> <span class="n">mary</span>     <span class="o">=</span> <span class="k">new</span> <span class="n">TreeNode</span><span class="o">(</span><span class="n">Integer</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="mi">3</span><span class="o">),</span> <span class="s">"Mary"</span><span class="o">);</span>
+<span class="n">TreeNode</span> <span class="n">managers</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TreeNode</span><span class="o">(</span><span class="s">"managers"</span><span class="o">,</span> <span class="s">"Managers"</span><span class="o">,</span> <span class="n">alice</span><span class="o">,</span> <span class="n">bob</span><span class="o">,</span> <span class="n">mary</span><span class="o">);</span>
+</pre></div>
+</li>
+<li>
+<p><strong>Using <code>TreeNodeBuilder</code> as a more convenient way</strong></p>
 
-<h3>Dependencies</h3>
+<div class="highlight"><pre><span class="kd">private</span> <span class="kd">class</span> <span class="nc">ManagersNode</span> <span class="kd">implements</span> <span class="n">TreeNodeBuilderAware</span> <span class="o">{</span>
 
-<p>Rocket-Path library does not have mandatory dependencies. However, it has integrated support for working with <em>Contexts And Dependecy Injection</em> (CDI) and <em>Java Servlet (3.0) API</em>. The former is supported in <code>ws.rocket.path.annotation</code> package and Servlet API contracts are referred to in some contracts (interfaces). Note that everyone can define own interfaces for contracts and the default contracts in <code>ws.rocket.path.meta</code> package are optional.</p>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">initNode</span><span class="o">(</span><span class="n">TreeNodeBuilder</span> <span class="n">node</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">node</span><span class="o">.</span><span class="na">addChild</span><span class="o">(</span><span class="n">Integer</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="mi">1</span><span class="o">),</span> <span class="s">"Alice"</span><span class="o">);</span>
+    <span class="n">node</span><span class="o">.</span><span class="na">addChild</span><span class="o">(</span><span class="n">Integer</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="mi">2</span><span class="o">),</span> <span class="s">"Bob"</span><span class="o">);</span>
+    <span class="n">node</span><span class="o">.</span><span class="na">addChild</span><span class="o">(</span><span class="n">Integer</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="mi">3</span><span class="o">),</span> <span class="s">"Mary"</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
 
-<h3>Building</h3>
+<div class="highlight"><pre><span class="c1">// new TreeNodeBuilder([Object key, Object value, ][TreeNodeCallback callback])</span>
+
+<span class="n">TreeNode</span> <span class="n">team</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TreeNodeBuilder</span><span class="o">(</span><span class="kc">null</span><span class="o">,</span> <span class="s">"Development team"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">addChild</span><span class="o">(</span><span class="s">"managers"</span><span class="o">,</span> <span class="k">new</span> <span class="n">ManagersNode</span><span class="o">())</span>
+  <span class="o">.</span><span class="na">addChild</span><span class="o">(</span><span class="s">"developers"</span><span class="o">,</span> <span class="k">new</span> <span class="n">DevelopersNode</span><span class="o">())</span>
+  <span class="o">.</span><span class="na">addChild</span><span class="o">(</span><span class="s">"analysts"</span><span class="o">,</span> <span class="k">new</span> <span class="n">AnalystsNode</span><span class="o">())</span>
+  <span class="o">.</span><span class="na">addChild</span><span class="o">(</span><span class="k">new</span> <span class="n">TreeNode</span><span class="o">(</span><span class="s">"testers"</span><span class="o">,</span> <span class="n">alice</span><span class="o">,</span> <span class="n">bob</span><span class="o">,</span> <span class="n">mary</span><span class="o">))</span>
+  <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+</pre></div>
+</li>
+<li>
+<p><strong><code>@TreeNode</code> annotations on node value classes (with some help from CDI)</strong></p>
+
+<div class="highlight"><pre><span class="nd">@Named</span><span class="o">(</span><span class="s">"teamA"</span><span class="o">)</span> <span class="c1">// CDI named bean, one way for referring to beans other than class.</span>
+<span class="nd">@TreeNode</span><span class="o">(</span><span class="n">key</span> <span class="o">=</span> <span class="s">"DevTeam"</span><span class="o">,</span>
+    <span class="n">childTypes</span> <span class="o">=</span> <span class="o">{</span> <span class="n">Managers</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">Developers</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">Analysts</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">Testers</span><span class="o">.</span><span class="na">class</span> <span class="o">})</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">DevelopmentTeam</span> <span class="o">{}</span>
+</pre></div>
+
+<p>Examples of how to inject a constructed tree:</p>
+
+<div class="highlight"><pre><span class="c1">// By root node value object type:</span>
+<span class="nd">@Inject</span> <span class="nd">@RootNode</span><span class="o">(</span><span class="n">type</span> <span class="o">=</span> <span class="n">DevelopmentTeam</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="kd">private</span> <span class="n">TreeNode</span> <span class="n">team</span><span class="o">;</span>
+
+<span class="c1">// By root node value bean name (explicit)</span>
+<span class="nd">@Inject</span> <span class="nd">@RootNode</span><span class="o">(</span><span class="s">"teamA"</span><span class="o">)</span>
+<span class="kd">private</span> <span class="n">TreeNode</span> <span class="n">team</span><span class="o">;</span>
+
+<span class="c1">// By root node value bean name (implicit)</span>
+<span class="nd">@Inject</span> <span class="nd">@RootNode</span>
+<span class="kd">private</span> <span class="n">TreeNode</span> <span class="n">teamA</span><span class="o">;</span>
+</pre></div>
+</li>
+</ol><h2>
+<a name="tree-path" class="anchor" href="#tree-path"><span class="octicon octicon-link"></span></a>Tree Path</h2>
+
+<p>It is easier to refer to a tree node when referring to it by some kind of path. <code>TreePath</code> is a class for
+parsing, formatting, representing and traversing a tree path of type <code>String</code>. By default, it assumes that path
+elements are separated by forward slash. Additionally supports extension parsing when other than the simplest
+constructor is used for creating a path (since detecting whether extension is really an extension and not part of the
+last path segment, it needs more careful handling). Default extension separator is dot. Empty path segments are ignored
+(so a preceding or trailing slash won't have any significance). <code>TreePath</code> also provides handy methods for tracking
+the current position in path and printing out the previous, following, or full path.</p>
+
+<p>Construction:</p>
+
+<div class="highlight"><pre><span class="k">new</span> <span class="nf">TreePath</span><span class="o">(</span><span class="n">String</span> <span class="n">path</span><span class="o">);</span>
+<span class="k">new</span> <span class="nf">TreePath</span><span class="o">(</span><span class="n">String</span> <span class="n">path</span><span class="o">,</span> <span class="n">String</span> <span class="n">pathItemSeparator</span><span class="o">,</span> <span class="n">String</span> <span class="n">extensionSeparator</span><span class="o">);</span>
+<span class="k">new</span> <span class="nf">TreePath</span><span class="o">(</span><span class="n">String</span> <span class="n">path</span><span class="o">,</span> <span class="n">String</span><span class="o">[]</span> <span class="n">allowedExtensions</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">extensionsCaseSensitive</span><span class="o">);</span>
+<span class="k">new</span> <span class="nf">TreePath</span><span class="o">(</span><span class="n">String</span> <span class="n">path</span><span class="o">,</span> <span class="n">String</span> <span class="n">itemSep</span><span class="o">,</span> <span class="n">String</span> <span class="n">extSep</span><span class="o">,</span> <span class="n">String</span><span class="o">[]</span> <span class="n">allowedExts</span><span class="o">,</span>
+    <span class="kt">boolean</span> <span class="n">extCaseSensitive</span><span class="o">);</span>
+</pre></div>
+
+<h2>
+<a name="more-information" class="anchor" href="#more-information"><span class="octicon octicon-link"></span></a>More information</h2>
+
+<p>Although this README covers the most use-cases, please refer to the complete
+<a href="http://mrtamm.github.com/rocket-path/javadoc/0.2/">JavaDoc</a> or the
+<a href="https://github.com/mrtamm/rocket-path/wiki/User-Guide">User Guide</a> of the <em>Rocket-Path</em> library to get more detailed
+information.</p>
+
+<p>This library used to contain a tree-based HTTP request processing code in version 0.1 which is now removed and
+maintained separately: mrtamm/rocket-embedded.</p>
+
+<h3>
+<a name="dependencies" class="anchor" href="#dependencies"><span class="octicon octicon-link"></span></a>Dependencies</h3>
+
+<p><em>Rocket-Path</em> is compatible with Java 6 or newer runtime. If <em>Contexts And Dependecy Injection</em> (CDI) is installed at
+the platform, the annotations-based approch for constructing trees is also enabled.</p>
+
+<p>There are no further dependencies.</p>
+
+<h3>
+<a name="building" class="anchor" href="#building"><span class="octicon octicon-link"></span></a>Building</h3>
 
 <p>This project uses <a href="http://www.gradle.org/">Gradle</a> for</p>
 
@@ -80,12 +162,12 @@ request handlers that integrates well with the <em>Java Servlet (3.0) API</em>.<
 <li>generating Eclipse IDE project preferences file (<code>gradle eclipse</code>),</li>
 <li>executing unit tests (<code>gradle test</code>),</li>
 <li>building the project (<code>gradle jar</code>).</li>
-</ul><p>To view more available tasks, execute following command:</p>
+</ul><p>The main command for running all tasks should be just <code>gradle</code>. To view more available tasks, execute the following:</p>
 
-<pre><code>gradle tasks [--all]
+<pre><code>gradle tasks
 </code></pre>
 
-<p>Gradle uses .<code>/build/</code> directory for storing build process results:</p>
+<p>Gradle uses <code>./build/</code> directory for storing build process results:</p>
 
 <pre><code>./build/libs/           - composed JAR file directory
 ./build/docs/javadoc/   - generated JavaDoc directory
@@ -94,7 +176,8 @@ request handlers that integrates well with the <em>Java Servlet (3.0) API</em>.<
 
 <p>Gradle can be configured by editing <code>./build.gradle</code> file.</p>
 
-<h3>License</h3>
+<h3>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h3>
 
 <p>This library is open-sourced with <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0 license</a> and is free to use.</p>
       </section>
