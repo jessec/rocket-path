@@ -3,7 +3,7 @@ defaultTasks 'clean', 'build'
 apply plugin: 'java'
 apply plugin: 'checkstyle'
 apply plugin: 'eclipse'
-apply plugin: 'jacoco'
+//apply plugin: 'jacoco'
 
 description = 'Rocket-Path \u2013 a Tree Library'
 version = '0.2'
