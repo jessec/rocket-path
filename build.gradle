@@ -1,12 +1,15 @@
 defaultTasks 'clean', 'build'
 
+apply plugin: 'maven'
 apply plugin: 'java'
 apply plugin: 'checkstyle'
 apply plugin: 'eclipse'
 //apply plugin: 'jacoco'
 
 description = 'Rocket-Path \u2013 a Tree Library'
-version = '0.2'
+
+group = 'io.core9'
+version = '0.2-SNAPSHOT'
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
@@ -46,3 +49,25 @@ javadoc {
     links 'http://docs.oracle.com/javase/6/docs/api/', 'http://docs.jboss.org/cdi/api/1.0/'
   }
 }
+
+uploadArchives {
+	repositories {
+		mavenDeployer {
+
+			repository(url: "http://divvers.com/nexus/content/repositories/io.core9") {
+				authentication(userName: mavenUser, password: mavenPassword)
+			}
+
+			snapshotRepository(url: 'http://divvers.com/nexus/content/repositories/core') {
+				authentication(userName: mavenUser, password: mavenPassword)
+			}
+
+
+			addFilter("main") { artifact, file -> artifact.name == project.name }
+			
+
+
+		}
+	}
+}
+
